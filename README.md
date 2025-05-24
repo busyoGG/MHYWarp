@@ -10,7 +10,7 @@
 
 ## 使用说明
 
-1. 点击文件夹选择按钮<img style="width: 20px;height:20px;" src="./readme/screenshot3.png">，选择游戏目录，假设你的游戏在 `/home/yourname/Star Rail/`，那你就需要选择 `/home/yourname/Star Rail/Game` 目录。
+1. 点击文件夹选择按钮<img style="width: 20px;height:20px;" src="./readme/screenshot3.png">，选择存在 `StarRail_Data` 文件夹的游戏目录，假设 `/home/yourname/Star Rail/Game` 存在该文件夹，那你就需要选择 `/home/yourname/Star Rail/Game` 目录。
 2. 打开游戏跃迁详情，让游戏把跃迁记录缓存到本地。
 3. 点击同步按钮<img style="width: 20px;height:20px;" src="./readme/screenshot4.png">，等待同步完成。
 
