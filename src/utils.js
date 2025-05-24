@@ -77,9 +77,11 @@ const config = {
 const dataMap = new Map()
 
 function sendMsg(...msg) {
-    // console.log("send ", msg)
-    // const win = BrowserWindow.getAllWindows()[0];
-    // win.webContents.send('log-message', msg);
+    if (process.env.NODE_ENV === 'development') {
+        console.log("send ", msg)
+        const win = BrowserWindow.getAllWindows()[0];
+        win.webContents.send('log-message', msg);
+    }
 }
 
 const fetchData = async () => {
@@ -116,7 +118,10 @@ const fetchData = async () => {
     let originRegion = ''
     let localTimeZone
     for (const type of gachaType) {
-        const { list, uid, region, region_time_zone } = await getGachaLogs(type, queryString)
+        let gachaLogs = await getGachaLogs(type, queryString);
+        if (!gachaLogs) return false;
+
+        const { list, uid, region, region_time_zone } = gachaLogs
         if (localTimeZone === undefined) {
             localTimeZone = dataMap.get(uid)?.region_time_zone
             if (localTimeZone === undefined) {
@@ -296,6 +301,10 @@ const getGachaLogs = async ({ name, key }, queryString) => {
         await sleep(0.3)
         // sendMsg(i18n.parse(text.fetch.current, { name, page }))
         res = await getGachaLog({ key, page, name, url, endId, retryCount: 5 })
+
+        //没有结果 返回错误
+        if (!res) return false;
+
         logs = res?.list || []
         if (!uid && logs.length) {
             uid = logs[0].uid
@@ -344,7 +353,8 @@ const getGachaLog = async ({ key, page, name, retryCount, url, endId }) => {
         if (res?.data?.list) {
             return res?.data
         }
-        throw new Error(res?.message || res)
+        // throw new Error(res?.message || res)
+        return false;
     } catch (e) {
         if (retryCount) {
             // sendMsg(i18n.parse(text.fetch.retry, { name, page, count: 6 - retryCount }))
@@ -353,7 +363,8 @@ const getGachaLog = async ({ key, page, name, retryCount, url, endId }) => {
             return await getGachaLog({ key, page, name, retryCount, url, endId })
         } else {
             // sendMsg(i18n.parse(text.fetch.retryFailed, { name, page }))
-            throw e
+            // throw e
+            return false;
         }
     }
 }
@@ -482,6 +493,7 @@ const tryRequest = async (url, retry = false) => {
     try {
         sendMsg(gachaTypeUrl)
         const res = await request(gachaTypeUrl)
+        sendMsg(res)
         checkResStatus(res)
     } catch (e) {
         if (e.code === 'ERR_PROXY_CONNECTION_FAILED' && !retry) {
@@ -530,7 +542,8 @@ const checkResStatus = (res) => {
             sendMsg(true, 'AUTHKEY_TIMEOUT')
         }
         sendMsg(message)
-        throw new Error(message)
+        // throw new Error(message)
+        return false;
     }
     sendMsg(false, 'AUTHKEY_TIMEOUT')
     return res

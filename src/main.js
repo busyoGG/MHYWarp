@@ -9,6 +9,7 @@ if (process.env.NODE_ENV === 'development') {
         require('electron-reload')(__dirname, {
             electron: require(`${__dirname}/node_modules/electron`)
         });
+        Menu.setApplicationMenu(null);
         console.log('Electron reload enabled');
     } catch (e) {
         console.warn('electron-reload not found or failed to load.');
@@ -29,8 +30,6 @@ function createWindow() {
     });
     win.loadFile('src/index.html');
 }
-
-Menu.setApplicationMenu(null);
 
 app.whenReady().then(() => {
     createWindow();
