@@ -1,0 +1,39 @@
+{
+  "name": "hsrwarp",
+  "version": "1.0.0",
+  "description": "",
+  "author": {
+    "name": "busyo",
+    "email": "qq694253220@gmail.com"
+  },
+  "homepage": "https://github.com/busyoGG",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^36.2.1",
+    "electron-builder": "^26.0.12",
+    "electron-reload": "^2.0.0-alpha.1"
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.0",
+    "glob": "^11.0.2",
+    "sqlite3": "^5.1.7"
+  },
+  "build": {
+    "appId": "org.busyo.hsrwarp",
+    "productName": "HSRWarp",
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "res/icon.png"
+    }
+  }
+}
