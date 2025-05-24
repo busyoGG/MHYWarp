@@ -20,9 +20,9 @@
 本项目配置文件保存在 `~/.config/hsr_warp/` 文件夹下，包含以下文件：
 
 - `userData/config.json`：配置文件。
-- `userData/gacha-list-{your_uid}.json` 跃迁记录文件。
+- `userData/{game}-gacha-list-{your_uid}.json` 跃迁记录文件。
 - `imageCache.db` 图片缓存数据库。
-- `image_cache/` 图片缓存文件夹。
+- `image_cache_{game}/` 图片缓存文件夹。
 
 ## 截图
 
