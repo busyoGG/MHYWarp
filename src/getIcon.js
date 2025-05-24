@@ -4,6 +4,8 @@ const crypto = require('crypto');
 const https = require('https');
 const sqlite3 = require('sqlite3').verbose();
 const os = require('os');
+const cheerio = require('cheerio');
+const { getConfig } = require("./config");
 
 // const appDir = __dirname; // 你项目根目录或者用 electron app.getPath('userData')
 // const dbPath = path.join(appDir, '../res/imageCache.db');
@@ -12,7 +14,6 @@ const os = require('os');
 const dbPath = path.join(os.homedir(), '.config/hsr_warp/imageCache.db');
 const cacheDir = path.join(os.homedir(), '.config/hsr_warp/image_cache');
 
-if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
 // 打开数据库
 const db = new sqlite3.Database(dbPath);
 // 初始化表
@@ -44,19 +45,48 @@ function downloadImage(url) {
         return downloading.get(url);
     }
 
-    let promise = new Promise((resolve, reject) => {
+    let promise = new Promise(async (resolve, reject) => {
         // console.log("http?", !url.startsWith('http'))
         if (!url.startsWith('http')) return resolve(url);
+        console.log("加载图片", url, url.includes('wiki.biligame.com'))
+
+        if (url.includes('wiki.biligame.com')) {
+            const res = await request(url, true)
+            const $ = cheerio.load(res);
+            let alt = url.split('/').pop();
+            const img = $(`img[alt="${alt}"]`);
+
+            // console.log(img, img.src);
+
+            if (img.length > 0) {
+                console.log('✅ 找到图片 src:', img.attr('src'));
+            } else {
+                console.log('❌ 未找到对应 alt 的 <img>');
+            }
+
+            url = img.attr('src');
+        }
+
+        console.log("修改", url)
 
         const ext = path.extname(new URL(url).pathname) || '.png';
         const id = generateId(url);
         const fileName = id + ext;
-        const filePath = path.join(cacheDir, fileName);
+        const folder = cacheDir + "_" + getConfig().game;
+        const filePath = path.join(folder, fileName);
+
+        console.log(folder, !fs.existsSync(folder))
+        if (!fs.existsSync(folder)) {
+            console.log("filePath", filePath)
+            await fs.mkdirSync(folder, { recursive: true });
+        }
 
         // 如果文件已存在，直接返回路径
         if (fs.existsSync(filePath)) {
             return resolve(filePath);
         }
+
+        // console.log("image", url);
 
         const file = fs.createWriteStream(filePath);
         https.get(url, (res) => {
@@ -92,6 +122,8 @@ function getCachedImage(url) {
 
         db.get('SELECT localPath, cachedAt FROM images WHERE id = ?', [id], async (err, row) => {
             if (err) return reject(err);
+
+            // console.log("数据库 ", row, row.localPath, fs.existsSync(row.localPath))
 
             // 如果数据库有记录，且文件存在，直接返回
             if (row && row.localPath && fs.existsSync(row.localPath)) {
@@ -135,20 +167,52 @@ function getCachedImage(url) {
 //     });
 // }
 
-const baseUrl = "https://raw.githubusercontent.com/Mar-7th/StarRailRes/refs/heads/master/icon/"
+const request = async (url, text = false) => {
+    // console.log("连接", url)
+    const res = await fetch(url, {
+        timeout: 15 * 1000
+    })
 
-const getLightConeIcon = (id) => {
-    let url = path.join(baseUrl, "light_cone", `${id}.png`)
+    if (text) {
+        return await res.text()
+    } else {
+        return await res.json()
+    }
+}
+
+const hsrBaseUrl = "https://raw.githubusercontent.com/Mar-7th/StarRailRes/refs/heads/master/icon/"
+const genshinBaseUrl = "https://wiki.biligame.com/ys/"
+
+const getLightConeIcon = (item) => {
+    let url;
+    switch (getConfig().game) {
+        case "HSR":
+            url = path.join(hsrBaseUrl, "light_cone", `${item.item_id}.png`)
+            break;
+        case "Genshin":
+            url = path.join(genshinBaseUrl, `文件:${item.name}.png`)
+            break;
+    }
+    // console.log("url", url)
     return url
 }
 
-const getCharacterIcon = (id) => {
-    let url = path.join(baseUrl, "character", `${id}.png`)
+const getCharacterIcon = (item) => {
+    let url;
+    switch (getConfig().game) {
+        case "HSR":
+            url = path.join(hsrBaseUrl, "character", `${item.item_id}.png`)
+            break;
+        case "Genshin":
+            url = path.join(genshinBaseUrl, `文件:无背景-角色-${item.name}.png`)
+            break;
+    }
+    // console.log("url", url)
     return url
 }
 
 module.exports = {
     getLightConeIcon,
     getCharacterIcon,
-    downloadImage
+    getCachedImage
 }

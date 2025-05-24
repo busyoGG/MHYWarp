@@ -1,19 +1,23 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
-const { fetchData, getCurrentData, openFolderSelector, getConfig } = require('./utils.js');
-const { downloadImage } = require('./getIcon.js');
+const { fetchData, getCurrentData, openFolderSelector } = require('./utils.js');
+const { getCachedImage } = require('./getIcon.js');
+const { getGachaType } = require('./getGacha.js');
+const { setGame, getConfig } = require('./config.js');
 
 // 开发模式启用 electron-reload
 if (process.env.NODE_ENV === 'development') {
     try {
+        // console.log(`${__dirname}/../node_modules/electron`)
         require('electron-reload')(__dirname, {
-            electron: require(`${__dirname}/node_modules/electron`)
+            electron: require(`${__dirname}/../node_modules/electron`)
         });
-        Menu.setApplicationMenu(null);
         console.log('Electron reload enabled');
     } catch (e) {
         console.warn('electron-reload not found or failed to load.');
     }
+} else {
+    Menu.setApplicationMenu(null);
 }
 
 function createWindow() {
@@ -58,8 +62,17 @@ ipcMain.handle('getConfig', async () => {
     return await getConfig()
 })
 
-ipcMain.handle('downloadImage', async (evt, url) => {
-    let res = await downloadImage(url);
+ipcMain.handle('getCachedImage', async (evt, url) => {
+    let res = await getCachedImage(url);
     // console.log("url ==>", url,res)
-    return await downloadImage(res)
+    return res
+})
+
+ipcMain.handle('getGachaType', async (evt) => {
+    return await getGachaType()
+})
+
+ipcMain.handle('setGame', async (evt, game) => {
+    console.log("setGame ==>", game)
+    return await setGame(game)
 })

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>崩坏：星穹铁道跃迁记录</title>
+    <title>米游抽卡记录</title>
     <style>
         body {
             display: flex;
@@ -179,11 +179,11 @@
             background-color: rgba(0, 0, 0, 0.774);
             color: #fff;
             text-align: center;
-            border-radius: 4px;
+            border-radius: 6px;
             padding: 5px 8px;
             position: absolute;
             z-index: 1;
-            bottom: 125%;
+            bottom: -30px;
             /* 提示框在按钮上方 */
             left: 50%;
             transform: translateX(-50%);
@@ -217,67 +217,118 @@
             align-items: center;
         }
 
-        /* .info span {
-            width: 100%;
-            text-align: center;
-        } */
+        .game-change {
+            cursor: pointer;
+            height: 40px !important;
+            width: 40px !important;
+            /* aspect-ratio:1; */
+        }
+
+        #dropdown {
+            display: none;
+            border: 1px solid #ccc;
+            width: 120px;
+            position: absolute;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            cursor: pointer;
+            border-radius: 10px;
+            left: 20px;
+            top: 35px;
+            font-size: 14px;
+            overflow: hidden;
+            z-index: 999;
+        }
+
+        #dropdown li {
+            padding: 8px 12px;
+        }
+
+        #dropdown li:hover {
+            background-color: #eee;
+        }
+
+        #game-icon {
+            margin-left: 5px;
+            height: 80%;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            border: 1px solid #ad893f;
+            box-shadow: rgba(121, 111, 70, 0.644) 0px 0px 4px 0px;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
-
     <div class="info">
-        <div>
-            <span id="uid">UID</span>
+        <div class="game-change">
+            <div class="tooltip">
+                <img src="../res/101.png" id="game-icon">
+                <span class="tooltiptext">点击切换游戏</span>
+            </div>
+            <ul id="dropdown">
+                <li data-game="Genshin">原神</li>
+                <li data-game="HSR">星穹铁道</li>
+            </ul>
         </div>
         <div>
-            <img src="../res/102.png" style="height:80%;aspect-ratio:1;">
+            <span id="uid" style="width:90% ;text-align: left;">UID</span>
+        </div>
+        <div>
+            <img src="../res/102.png" style="height:80%;aspect-ratio:1;" id="special-icon">
             <span id="special-count">限定消耗</span>
         </div>
         <div>
-            <img src="../res/101.png" style="height:80%;aspect-ratio:1;">
+            <img src="../res/101.png" style="height:80%;aspect-ratio:1;" id="normal-icon">
             <span id="normal-count">常驻消耗</span>
         </div>
     </div>
 
-    <div class="chart-box">
-        <div class="chart-container">
-            <div>角色活动跃迁</div>
-            <div class="chart">
-                <canvas id="character-chart" style="height: 100px;"></canvas>
+    <div>
+        <div id="chart-box" class="chart-box">
+            <div class="chart-container">
+                <div>角色活动跃迁</div>
+                <div class="chart">
+                    <canvas id="character-chart" style="height: 100px;"></canvas>
+                </div>
+                <div style="font-size: 14px;color:#b88b11">五星平均</div>
             </div>
-            <div style="font-size: 14px;color:#b88b11">五星平均</div>
-        </div>
-        <div class="chart-container">
-            <div>光锥活动跃迁</div>
-            <div class="chart">
-                <canvas id="weapon-chart"></canvas>
+            <div class="chart-container">
+                <div>光锥活动跃迁</div>
+                <div class="chart">
+                    <canvas id="weapon-chart"></canvas>
+                </div>
+                <div style="font-size: 14px;color:#b88b11">五星平均</div>
             </div>
-            <div style="font-size: 14px;color:#b88b11">五星平均</div>
-        </div>
-        <div class="chart-container">
-            <div>常驻跃迁</div>
-            <div class="chart">
-                <canvas id="normal-chart"></canvas>
+            <div class="chart-container">
+                <div>常驻跃迁</div>
+                <div class="chart">
+                    <canvas id="normal-chart"></canvas>
+                </div>
+                <div style="font-size: 14px;color:#b88b11">五星平均</div>
             </div>
-            <div style="font-size: 14px;color:#b88b11">五星平均</div>
-        </div>
-        <div class="chart-container">
-            <div>新手跃迁</div>
-            <div class="chart">
-                <canvas id="new-chart"></canvas>
+            <div class="chart-container">
+                <div>新手跃迁</div>
+                <div class="chart">
+                    <canvas id="new-chart"></canvas>
+                </div>
+                <div style="font-size: 14px;color:#b88b11">五星平均</div>
             </div>
-            <div style="font-size: 14px;color:#b88b11">五星平均</div>
         </div>
         <div id="no-data" class="hide" style="width: 100%;text-align: center;">暂无数据</div>
     </div>
 
     <div id="filter-buttons" class="buttons">
-        <button data-filter="角色活动跃迁" class="active">角色活动跃迁</button>
-        <button data-filter="光锥活动跃迁">光锥活动跃迁</button>
-        <button data-filter="常驻跃迁">常驻跃迁</button>
-        <button data-filter="新手跃迁">新手跃迁</button>
+        <div id="buttons">
+            <button data-filter="角色活动跃迁" class="active">角色活动跃迁</button>
+            <button data-filter="光锥活动跃迁">光锥活动跃迁</button>
+            <button data-filter="常驻跃迁">常驻跃迁</button>
+            <button data-filter="新手跃迁">新手跃迁</button>
+        </div>
 
         <div style="display: flex; margin-left: auto;">
             <button id="selectFolderBtn" class="tooltip">
@@ -306,12 +357,23 @@
         var renderData;
         var specialCount = 0;
         var normalCount = 0;
+        var gachaType;
 
         window.onload = async () => {
+            console.log('页面加载完成了');
+            gachaType = await window.utils.getGachaType();
+
+            initHtml();
+
             await initData();
+            console.log('数据加载完成了', renderData);
             initAverage();
 
+            console.log('统计加载完成了');
+
             initPieChart();
+
+            console.log('图表加载完成了');
 
             const container = document.getElementById('scroll-container');
             const spacer = document.getElementById('spacer');
@@ -321,8 +383,8 @@
                 entries.forEach(async entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
-                        let local = await window.utils.downloadImage(img.dataset.src); // 加载图片
-                        // console.log("本地图片", local)
+                        let local = await window.utils.getCachedImage(img.dataset.src); // 加载图片
+                        console.log("本地图片", local)
                         img.src = local; // 设置真实 src
                         imgObserver.unobserve(img); // 只加载一次
                     }
@@ -333,7 +395,7 @@
                 threshold: 0.1
             });
 
-            let renderType = '角色活动跃迁';
+            let renderType = gachaType[0].name;
             const itemHeight = 60;
             let items = renderData[renderType];
 
@@ -504,22 +566,120 @@
             }
 
             initInfo();
+
+            let changeBtn = document.querySelector('.game-change');
+            changeBtn.addEventListener('click', async (event) => {
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                event.stopPropagation();
+            });
+
+            // 点击其它地方时隐藏下拉菜单
+            document.addEventListener('click', () => {
+                if (dropdown.style.display == "block") {
+                    dropdown.style.display = "none";
+                }
+            });
+
+            let gameIconMap = {
+                "Genshin": "../res/genshin_logo.png",
+                "HSR": "../res/hsr_logo.png"
+            }
+
+            let config = await window.utils.getConfig();
+            let gameIcon = document.getElementById('game-icon');
+            gameIcon.src = gameIconMap[config.game];
+            console.log(gameIcon.src, config.game)
+
+            dropdown.addEventListener('click', async (e) => {
+                if (e.target.tagName === 'LI') {
+                    const selected = e.target.getAttribute('data-game');
+                    console.log('选择了游戏:', selected);
+                    await window.utils.setGame(selected);
+                    location.reload();
+                }
+            });
+        }
+
+        function initHtml() {
+            let buttons = document.getElementById("buttons");
+            buttons.innerHTML = '';
+
+            let charts = document.getElementById("chart-box");
+            charts.innerHTML = '';
+
+            let i = 0;
+            for (let data of gachaType) {
+
+                //生成按钮
+                const btn = document.createElement('button');
+                btn.dataset.filter = data.name; // 设置 data-filter 属性
+                if (i == 0) {
+                    btn.classList.add('active');         // 添加 class
+                }
+                btn.textContent = data.name;    // 设置按钮文字
+
+                buttons.appendChild(btn);
+
+                //生成图表
+                const container = document.createElement('div');
+                container.className = 'chart-container';
+
+                // 第一个 <div>：标题
+                const title = document.createElement('div');
+                title.textContent = data.name;
+
+                // 第二个 <div>：包含 canvas 的 chart 区域
+                const chartDiv = document.createElement('div');
+                chartDiv.className = 'chart';
+
+                const canvas = document.createElement('canvas');
+                canvas.id = data.name + "-chart";
+                canvas.style.height = '100px';
+
+                chartDiv.appendChild(canvas);
+
+                // 第三个 <div>：描述文字
+                const note = document.createElement('div');
+                note.style.fontSize = '14px';
+                note.style.color = '#b88b11';
+                note.textContent = '五星平均';
+
+                // 组装结构
+                container.appendChild(title);
+                container.appendChild(chartDiv);
+                container.appendChild(note);
+
+                charts.appendChild(container);
+
+                i++;
+            }
         }
 
         async function initInfo() {
             const selectFolder = document.getElementById('selectedFolder');
             let config = await window.utils.getConfig();
 
-            if (config.userPath) {
-                selectFolder.textContent = `当前游戏文件夹: ${config.userPath}`;
+            if (config.userPath[config.game]) {
+                selectFolder.textContent = `当前游戏文件夹: ${config.userPath[config.game]}`;
             }
 
             if (config.current) {
                 document.getElementById('uid').textContent = `UID: ${config.current}`;
             }
 
+            switch (config.game) {
+                case 'HSR':
+                    document.getElementById('special-icon').src = "../res/102.png";
+                    document.getElementById('normal-icon').src = "../res/101.png";
+                    break;
+                case 'Genshin':
+                    document.getElementById('special-icon').src = "../res/jczy.png";
+                    document.getElementById('normal-icon').src = "../res/xyzy.png";
+                    break;
+            }
             document.getElementById('special-count').textContent = `限定消耗: ${specialCount} 抽`;
             document.getElementById('normal-count').textContent = `常驻消耗: ${normalCount} 抽`;
+
         }
 
         async function initData() {
@@ -541,9 +701,9 @@
                 for (let i = 0; i < value.length; i++) {
                     let item = value[i];
                     count++;
-                    if (key == "角色活动跃迁" || key == "光锥活动跃迁") {
+                    if (key.includes("活动") || key.includes("集愿")) {
                         specialCount += 1;
-                    } else if (key == "常驻跃迁" || key == "新手跃迁") {
+                    } else {
                         normalCount += 1;
                     }
                     // console.log(item.rank_type)
@@ -578,11 +738,10 @@
 
         function initAverage() {
 
-            const averageList = {
-                "角色活动跃迁": document.getElementById("character-chart").parentElement.nextElementSibling,
-                "光锥活动跃迁": document.getElementById("weapon-chart").parentElement.nextElementSibling,
-                "常驻跃迁": document.getElementById("normal-chart").parentElement.nextElementSibling,
-                "新手跃迁": document.getElementById("new-chart").parentElement.nextElementSibling
+            const averageList = {}
+
+            for (let data of gachaType) {
+                averageList[data.name] = document.querySelector(`#${data.name}-chart`).parentElement.nextElementSibling;
             }
 
             for (let key in averageList) {
@@ -638,24 +797,14 @@
                 // console.log(pieData[key])
             }
 
-            let pieList = [
-                {
-                    chart: "character-chart",
-                    data: pieData["角色活动跃迁"]
-                },
-                {
-                    chart: "weapon-chart",
-                    data: pieData["光锥活动跃迁"]
-                },
-                {
-                    chart: "normal-chart",
-                    data: pieData["常驻跃迁"]
-                },
-                {
-                    chart: "new-chart",
-                    data: pieData["新手跃迁"]
-                }
-            ]
+            let pieList = []
+
+            for (let data of gachaType) {
+                pieList.push({
+                    chart: `${data.name}-chart`,
+                    data: pieData[data.name]
+                })
+            }
 
             for (let item of pieList) {
                 // console.log(item)
@@ -739,6 +888,8 @@
             tooltip.style.left = '50%';  // 先恢复默认水平居中
             tooltip.style.right = 'auto';
 
+            console.log(tooltip);
+
             const rect = tooltip.getBoundingClientRect();
             const padding = 10; // 距离窗口边缘的最小距离
 
@@ -750,9 +901,17 @@
             }
 
             // 左边超出视口
-            if (rect.left < padding) {
-                tooltip.style.left = `${padding}px`;
+            if (rect.left < 0) {
+                tooltip.style.left = `calc(100% + ${padding * 2}px)`;
             }
+
+            // if (rect.top < padding) {
+            //     tooltip.style.top = `calc(100% + ${padding * 2}px)`;
+            // }
+
+            // if (rect.bottom > window.innerHeight - padding) {
+            //     tooltip.style.bottom = `${padding}px`;
+            // }
         }
     </script>
 

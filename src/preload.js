@@ -16,5 +16,7 @@ contextBridge.exposeInMainWorld('utils', {
     getCurrentData: () => ipcRenderer.invoke('getCurrentData'),
     getFolder: () => ipcRenderer.invoke('getFolder'),
     getConfig: () => ipcRenderer.invoke('getConfig'),
-    downloadImage: (url) => ipcRenderer.invoke('downloadImage', url)
+    getCachedImage: (url) => ipcRenderer.invoke('getCachedImage', url),
+    getGachaType: () => ipcRenderer.invoke('getGachaType'),
+    setGame: (game) => ipcRenderer.invoke('setGame', game),
 })
