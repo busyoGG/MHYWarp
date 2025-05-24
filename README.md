@@ -2,7 +2,7 @@
 
 ## 简介
 
-本软件是 Linux 平台下查询《崩坏：星穹铁道》跃迁记录的工具。
+本项目是 Linux 平台下查询《崩坏：星穹铁道》跃迁记录的工具。
 
 本项目基于 Electron,参考 [star-rail-warp-export](https://github.com/biuuu/genshin-wish-export) 项目开发。
 
@@ -12,6 +12,15 @@
 
 1. 点击文件夹选择按钮<img style="width: 20px;height:20px;" src="./readme/screenshot3.png">，选择游戏目录，假设你的游戏在 `/home/yourname/Star Rail/`，那你就需要选择 `/home/yourname/Star Rail/Game` 目录。
 2. 点击同步按钮<img style="width: 20px;height:20px;" src="./readme/screenshot4.png">，等待同步完成。
+
+## 配置说明
+
+本项目配置文件保存在 `~/.config/hsr_warp/` 文件夹下，包含以下文件：
+
+- `userData/config.json`：配置文件。
+- `userData/gacha-list-{your_uid}.json` 跃迁记录文件。
+- `imageCache.db` 图片缓存数据库。
+- `image_cache/` 图片缓存文件夹。
 
 ## 截图
 
