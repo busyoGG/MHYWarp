@@ -1,4 +1,4 @@
-const { getConfig } = require("./config")
+const { getConfig, config } = require("./config")
 
 
 let apiDomain = 'https://api-takumi.mihoyo.com'
@@ -19,8 +19,7 @@ const genshinTypeMap = new Map([
 ])
 
 function updateApiDomain(host) {
-    console.log(game)
-    switch (game) {
+    switch (config.game) {
         case 'HSR':
             if (host.includes('webstatic-sea') || host.includes('hkrpg-api-os') || host.includes('api-os-takumi') || host.includes('hoyoverse.com')) {
                 apiDomain = 'https://public-operation-hkrpg-sg.hoyoverse.com'
@@ -36,7 +35,7 @@ function updateApiDomain(host) {
 
 function urlMatch(cacheText) {
     let res;
-    switch (game) {
+    switch (config.game) {
         case 'HSR':
             res = cacheText.match(/https[^?]+?\?[^?]+?&auth_appid=webview_gacha&.+?authkey=.+?&game_biz=hkrpg_/g)
             break;

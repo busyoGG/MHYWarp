@@ -13,6 +13,7 @@
 1. 点击文件夹选择按钮<img style="width: 20px;height:20px;" src="./readme/screenshot3.png">，选择存在 `StarRail_Data` 文件夹的游戏目录，假设 `/home/yourname/Star Rail/Game` 存在该文件夹，那你就需要选择 `/home/yourname/Star Rail/Game` 目录。
 2. 打开游戏跃迁详情，让游戏把跃迁记录缓存到本地。
 3. 点击同步按钮<img style="width: 20px;height:20px;" src="./readme/screenshot4.png">，等待同步完成。
+4. 点击游戏图标选择查询的游戏 <img style="width: 20px;height:20px;" src="./readme/screenshot5.png">。
 
 ## 配置说明
 
@@ -27,4 +28,4 @@
 
 > 由于跃迁记录存在时效性，因此最早的五星跃迁记录所显示的抽数可能与实际不符，从而导致平均抽数计算值偏低。
 
-![](readme/screenshot2.png)
+![](./readme/screenshot7.png)
