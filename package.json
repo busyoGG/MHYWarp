@@ -1,5 +1,5 @@
 {
-  "name": "hsrwarp",
+  "name": "mhywarp",
   "version": "1.1.0",
   "description": "",
   "author": {
@@ -28,8 +28,8 @@
     "sqlite3": "^5.1.7"
   },
   "build": {
-    "appId": "org.busyo.hsrwarp",
-    "productName": "HSRWarp",
+    "appId": "org.busyo.mhywarp",
+    "productName": "MHYWarp",
     "linux": {
       "target": [
         "AppImage"
