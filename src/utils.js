@@ -6,7 +6,7 @@ const util = require('util')
 const os = require('os');
 
 const { mergeData } = require('./mergeData')
-const { getLightConeIcon, getCharacterIcon } = require('./getIcon')
+const { getLightConeIcon, getCharacterIcon, getBangbooIcon } = require('./getIcon')
 const { getQuerystring, getGachaType, getGachaLogUrl, urlMatch } = require('./getGacha')
 const { config, changeCurrent, saveConfig } = require('./config')
 
@@ -40,7 +40,7 @@ function sendMsg(...msg) {
 const fetchData = async () => {
     await readData()
 
-    sendMsg(dataMap);
+    // sendMsg(dataMap);
 
     let url = await getUrl()
 
@@ -49,6 +49,8 @@ const fetchData = async () => {
         // throw new Error("No URL found")
         return false;
     }
+
+    console.log("url", url)
 
     await tryRequest(url)
 
@@ -176,11 +178,11 @@ const findDataFiles = async (dataPath, fileMap) => {
     const files = await readdir(dataPath)
     if (files?.length) {
         const prefix = config.game;
-        console.log("prefix", prefix, `^${prefix}-gacha-list-\\d+\\.json$`)
+        // console.log("prefix", prefix, `^${prefix}-gacha-list-\\d+\\.json$`)
         for (let name of files) {
             const regex = new RegExp(`^${prefix}-gacha-list-\\d+\\.json$`);
 
-            console.log(name, regex.test(name))
+            // console.log(name, regex.test(name))
             if (regex.test(name) && !fileMap.has(name)) {
                 fileMap.set(name, dataPath)
             }
@@ -202,7 +204,7 @@ const saveData = async (data) => {
     await saveJSON(`${config.game}-gacha-list-${data.uid}.json`, obj)
 }
 
-const userDataPath = path.resolve(os.homedir(), '.config/hsr_warp/userData')
+const userDataPath = path.resolve(os.homedir(), '.config/mhy_warp/userData')
 const saveJSON = async (name, data) => {
     try {
         let savePath = path.join(userDataPath, name);
@@ -225,7 +227,7 @@ const getGachaLogs = async ({ name, key }, queryString) => {
     let region_time_zone = ''
     let endId = '0'
     const url = `${getGachaLogUrl()}${queryString}`
-    // sendMsg("url ", url)
+    // sendMsg("gacha url ", url)
     do {
         // if (page % 10 === 0) {
         //   sendMsg(i18n.parse(text.fetch.interval, { name, page }))
@@ -283,9 +285,10 @@ const getGachaLog = async ({ key, page, name, retryCount, url, endId }) => {
     // const text = i18n.log
     try {
         // console.log(key, page, name, url, endId, retryCount)
-        let reqUrl = `${url}&gacha_type=${key}&page=${page}&size=${20}${endId ? '&end_id=' + endId : ''}`;
+        let pramGacha = config.game === "ZZZ" ? "real_gacha_type" : "gacha_type"
+        let reqUrl = `${url}&${pramGacha}=${key}&page=${page}&size=${20}${endId ? '&end_id=' + endId : ''}`;
         const res = await request(reqUrl)
-        console.log(key, res);
+        // console.log(reqUrl, res);
         if (res?.data?.list) {
             return res?.data
         }
@@ -333,13 +336,13 @@ const readLog = async () => {
                 break;
         }
 
-        sendMsg("path", userPath);
+        // sendMsg("path", userPath);
 
         const [cacheText, cacheFile] = await getCacheText(userPath)
         // console.log(cacheText)
 
         const urlMch = urlMatch(cacheText)
-        sendMsg(urlMch)
+        // sendMsg(urlMch)
         if (urlMch) {
             cacheFolder = cacheFile.replace(/Cache_Data[/\\]data_2$/, '')
             return getLatestUrl(urlMch)
@@ -368,7 +371,7 @@ async function getCacheText(gamePath) {
         windowsPathsNoEscape: true
     })
 
-    console.log(results)
+    // console.log(parttern)
 
     const timeSortedFiles = results
         .sort((a, b) => b.mtimeMs - a.mtimeMs)
@@ -376,7 +379,7 @@ async function getCacheText(gamePath) {
 
     const cacheText = await fs.readFile(path.join(timeSortedFiles[0]), 'utf8')
 
-    // sendMsg(cacheText)
+    // sendMsg("time sorted files", timeSortedFiles[0], cacheText)
 
     return [cacheText, timeSortedFiles[0]]
 }
@@ -388,7 +391,7 @@ const tryRequest = async (url, retry = false) => {
     try {
         sendMsg(gachaTypeUrl)
         const res = await request(gachaTypeUrl)
-        sendMsg(res)
+        // sendMsg(res)
         checkResStatus(res)
     } catch (e) {
         if (e.code === 'ERR_PROXY_CONNECTION_FAILED' && !retry) {
@@ -427,7 +430,7 @@ const getCurrentData = async () => {
     let data = dataMap.get(config.current);
 
     if (data) {
-        console.log(data);
+        // console.log(data);
         for (let [key, value] of data.result) {
             let keyName = data.typeMap.get(key)
             output[keyName] = []
@@ -441,7 +444,17 @@ const getCurrentData = async () => {
                     item_type: item.item_type,
                     rank_type: item.rank_type,
                     gacha_id: item.gacha_id,
-                    icon: item.item_type == "角色" ? getCharacterIcon(item) : getLightConeIcon(item)
+                    icon: (() => {
+                        switch (item.item_type) {
+                            case "角色":
+                            case "代理人":
+                                return getCharacterIcon(item)
+                            case "邦布":
+                                return getBangbooIcon(item)
+                            default:
+                                return getLightConeIcon(item)
+                        }
+                    })()
                 }
                 output[keyName].push(outputItem)
             }
@@ -466,7 +479,7 @@ async function openFolderSelector() {
         config.userPath[config.game] = folderPath;
         // 这里你就得到了绝对路径，可以做后续操作
 
-        console.log(config.userPath, config.game);
+        // console.log(config.userPath, config.game);
         saveConfig();
         return folderPath;
     }

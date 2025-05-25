@@ -18,7 +18,7 @@ const sleep = (sec = 1) => {
     })
 }
 
-const userDataPath = path.resolve(os.homedir(), '.config/hsr_warp/userData')
+const userDataPath = path.resolve(os.homedir(), '.config/mhy_warp/userData')
 const saveJSON = async (name, data) => {
     try {
         let savePath = path.join(userDataPath, name);
@@ -67,7 +67,7 @@ getLocalConfig()
 
 async function setGame(game) {
     config.game = game
-    console.log('Game changed to', game)
+    // console.log('Game changed to', game)
     await saveConfig();
 }
 

@@ -227,7 +227,7 @@
         #dropdown {
             display: none;
             border: 1px solid #ccc;
-            width: 120px;
+            /* width: 130px; */
             position: absolute;
             background: white;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -237,7 +237,7 @@
             cursor: pointer;
             border-radius: 10px;
             left: 20px;
-            top: 35px;
+            top: 45px;
             font-size: 14px;
             overflow: hidden;
             z-index: 999;
@@ -245,6 +245,9 @@
 
         #dropdown li {
             padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            /* justify-content: center; */
         }
 
         #dropdown li:hover {
@@ -267,24 +270,27 @@
     <div class="info">
         <div class="game-change">
             <div class="tooltip">
-                <img src="../res/101.png" id="game-icon">
+                <img src="../res/icon.png" id="game-icon">
                 <span class="tooltiptext">点击切换游戏</span>
             </div>
             <ul id="dropdown">
-                <li data-game="Genshin">原神</li>
-                <li data-game="HSR">崩坏：星穹铁道</li>
-                <!-- <li data-game="ZZZ">绝区零</li> -->
+                <li data-game="Genshin"><img src="../res/genshin_logo.png"
+                        style="height:20px;width: 20px;margin-right: 10px;">原神</li>
+                <li data-game="HSR"><img src="../res/hsr_logo.png"
+                        style="height:20px;width: 20px;margin-right: 10px">崩坏：星穹铁道</li>
+                <li data-game="ZZZ"><img src="../res/zzz_logo.png"
+                        style="height:20px;width: 20px;margin-right: 10px">绝区零</li>
             </ul>
         </div>
         <div>
             <span id="uid" style="width:90% ;text-align: left;">UID</span>
         </div>
         <div>
-            <img src="../res/102.png" style="height:80%;aspect-ratio:1;" id="special-icon">
+            <img src="../res/102.png" style="height:80%;aspect-ratio:1;margin-right: 10px" id="special-icon">
             <span id="special-count">限定消耗</span>
         </div>
         <div>
-            <img src="../res/101.png" style="height:80%;aspect-ratio:1;" id="normal-icon">
+            <img src="../res/101.png" style="height:80%;aspect-ratio:1;margin-right: 10px" id="normal-icon">
             <span id="normal-count">常驻消耗</span>
         </div>
     </div>
@@ -358,16 +364,19 @@
         var renderData;
         var specialCount = 0;
         var normalCount = 0;
+        var bangbuCount = 0;
         var gachaType;
 
         window.onload = async () => {
             console.log('页面加载完成了');
             gachaType = await window.utils.getGachaType();
 
+            await window.utils.loadJson();
+
             initHtml();
 
             await initData();
-            console.log('数据加载完成了', renderData);
+            console.log('数据加载完成了');
             initAverage();
 
             console.log('统计加载完成了');
@@ -384,8 +393,8 @@
                 entries.forEach(async entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
-                        let local = await window.utils.getCachedImage(img.dataset.src); // 加载图片
-                        console.log("本地图片", local)
+                        let local = await window.utils.downloadImage(img.dataset.src); // 加载图片
+                        // console.log("本地图片", local)
                         img.src = local; // 设置真实 src
                         imgObserver.unobserve(img); // 只加载一次
                     }
@@ -495,7 +504,7 @@
                     }
                     lastBtn = e.target;
                     lastBtn.classList.add('active');
-                    console.log("激活", lastBtn)
+                    // console.log("激活", lastBtn)
                 }
             });
 
@@ -590,7 +599,7 @@
             let config = await window.utils.getConfig();
             let gameIcon = document.getElementById('game-icon');
             gameIcon.src = gameIconMap[config.game];
-            console.log(gameIcon.src, config.game)
+            // console.log(gameIcon.src, config.game)
 
             dropdown.addEventListener('click', async (e) => {
                 if (e.target.tagName === 'LI') {
@@ -678,6 +687,10 @@
                     document.getElementById('special-icon').src = "../res/jczy.png";
                     document.getElementById('normal-icon').src = "../res/xyzy.png";
                     break;
+                case 'ZZZ':
+                    document.getElementById('special-icon').src = "../res/jmmd.png";
+                    document.getElementById('normal-icon').src = "../res/yzmd.png";
+                    break;
             }
             document.getElementById('special-count').textContent = `限定消耗: ${specialCount} 抽`;
             document.getElementById('normal-count').textContent = `常驻消耗: ${normalCount} 抽`;
@@ -693,6 +706,9 @@
             let result = {};
             specialCount = 0;
             normalCount = 0;
+            bangbuCount = 0;
+
+            let config = await window.utils.getConfig();
 
             for (let key in res) {
                 let target;
@@ -703,13 +719,15 @@
                 for (let i = 0; i < value.length; i++) {
                     let item = value[i];
                     count++;
-                    if (key.includes("活动") || key.includes("集愿")) {
+                    if (key.includes("活动") || key.includes("集愿") || key.includes("独家") || key.includes("音擎")) {
                         specialCount += 1;
+                    } else if (key.includes("邦布")) {
+                        bangbuCount += 1;
                     } else {
                         normalCount += 1;
                     }
                     // console.log(item.rank_type)
-                    if (item.rank_type == 5) {
+                    if (item.rank_type == (config.game === "ZZZ" ? 4 : 5)) {
                         result[key].unshift({
                             name: item.name,
                             icon: item.icon,
@@ -767,6 +785,7 @@
 
         async function initPieChart() {
 
+            let config = await window.utils.getConfig();
             //初始化数据
             let res = await window.utils.getCurrentData();
 
@@ -777,6 +796,8 @@
             }
 
             let pieData = {}
+            //绝区零星级比其他少一级，需要补正 
+            let bonus = config.game == "ZZZ" ? 1 : 0;
 
             for (let key in res) {
                 let value = res[key];
@@ -785,10 +806,11 @@
                 let count = {}
                 for (let i = 0; i < value.length; i++) {
                     let item = value[i];
-                    if (count[item.rank_type]) {
-                        count[item.rank_type] += 1;
+                    let rank = parseInt(item.rank_type) + bonus;
+                    if (count[rank]) {
+                        count[rank] += 1;
                     } else {
-                        count[item.rank_type] = 1;
+                        count[rank] = 1;
                     }
                 }
 

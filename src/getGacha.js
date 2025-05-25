@@ -19,11 +19,10 @@ const genshinTypeMap = new Map([
 ])
 
 const zzzTypeMap = new Map([
-    ['301', '角色活动祈愿'],
-    ['302', '武器活动祈愿'],
-    ['500', '集录祈愿'],
-    ['200', '常驻祈愿'],
-    ['100', '新手祈愿']
+    ['2', '独家频段'],
+    ['3', '音擎频段'],
+    ['1', '常驻频段'],
+    ['5', '邦布频段']
 ])
 
 function updateApiDomain(host) {
@@ -39,7 +38,7 @@ function updateApiDomain(host) {
             apiDomain = 'https://public-operation-hk4e.mihoyo.com'
             break;
         case 'ZZZ':
-            // apiDomain = 'https://public-operation-hk4e.mihoyo.com'
+            apiDomain = 'https://public-operation-nap.mihoyo.com'
             break;
     }
 }
@@ -53,7 +52,11 @@ function urlMatch(cacheText) {
         case 'Genshin':
             res = cacheText.match(/https[^?]+?\?[^?]+?&auth_appid=webview_gacha&.+?authkey=.+?&game_biz=hk4e_/g)
             break;
+        case 'ZZZ':
+            res = cacheText.match(/https[^?]+?\?[^?]+?&auth_appid=webview_gacha&.+?authkey=.+?&game_biz=nap_cn/g)
+            break;
     }
+    // console.log(config.game, res)
     return res;
 }
 
@@ -106,6 +109,7 @@ function getGachaLogUrl() {
     let url;
     switch (getConfig().game) {
         case 'HSR':
+        case 'ZZZ':
             url = `${apiDomain}/common/gacha_record/api/getGachaLog?`
             break;
         case 'Genshin':

@@ -2,31 +2,23 @@ const path = require("path")
 const fs = require('fs')
 const crypto = require('crypto');
 const https = require('https');
-const sqlite3 = require('sqlite3').verbose();
 const os = require('os');
-const cheerio = require('cheerio');
-const { getConfig } = require("./config");
+const { getConfig, config } = require("./config");
 
-// const appDir = __dirname; // 你项目根目录或者用 electron app.getPath('userData')
-// const dbPath = path.join(appDir, '../res/imageCache.db');
-// const cacheDir = path.join(appDir, '../res/image_cache');
+const request = async (url, text = false) => {
+    // console.log("连接", url)
+    const res = await fetch(url, {
+        timeout: 15 * 1000
+    })
 
-const dbPath = path.join(os.homedir(), '.config/hsr_warp/imageCache.db');
-const cacheDir = path.join(os.homedir(), '.config/hsr_warp/image_cache');
+    if (text) {
+        return await res.text()
+    } else {
+        return await res.json()
+    }
+}
 
-// 打开数据库
-const db = new sqlite3.Database(dbPath);
-// 初始化表
-db.serialize(() => {
-    db.run(`
-      CREATE TABLE IF NOT EXISTS images (
-        id TEXT PRIMARY KEY,
-        localPath TEXT,
-        url TEXT,
-        cachedAt INTEGER
-      )
-    `);
-});
+const cacheDir = path.join(os.homedir(), '.config/mhy_warp/image_cache');
 
 /**
  * 生成唯一id（md5）用于缓存标识
@@ -37,37 +29,62 @@ function generateId(url) {
 
 const downloading = new Map(); // 用于去重，key 是 url
 
+
+const jsonUrl = {
+    "Genshin": [
+        "https://act-api-takumi-static.mihoyo.com/common/blackboard/ys_obc/v1/home/content/list?app_sn=ys_obc&channel_id=25",
+        "https://act-api-takumi-static.mihoyo.com/common/blackboard/ys_obc/v1/home/content/list?app_sn=ys_obc&channel_id=5"
+    ],
+    "HSR": "https://act-api-takumi-static.mihoyo.com/common/blackboard/sr_wiki/v1/home/content/list?app_sn=sr_wiki&channel_id=17",
+    "ZZZ": "https://act-api-takumi-static.mihoyo.com/common/blackboard/zzz_wiki/v1/home/content/list?app_sn=zzz_wiki&channel_id=2"
+}
+
+let jsons = {}
+let jsonInited = {};
+
+const LoadJson = async () => {
+    if (jsonInited[config.game]) return;
+    jsonInited[config.game] = true;
+
+    const url = jsonUrl[config.game];
+    if (typeof url === "string") {
+        const res = await request(url)
+        jsons[config.game] = res.data.list[0].children
+    } else {
+        jsons[config.game] = [];
+        for (let i = 0; i < url.length; i++) {
+            const res = await request(url[i])
+            jsons[config.game].push(res.data.list[0])
+        }
+    }
+
+    // console.log("jsons", jsons[config.game])
+}
+
 /**
  * 下载远程图片，保存到本地缓存目录
  */
 function downloadImage(url) {
-    if (downloading.has(url)) {
-        return downloading.get(url);
+    const originalUrl = url;
+
+    if (downloading.has(originalUrl)) {
+        return downloading.get(originalUrl);
     }
 
     let promise = new Promise(async (resolve, reject) => {
         // console.log("http?", !url.startsWith('http'))
-        if (!url.startsWith('http')) return resolve(url);
-        console.log("加载图片", url, url.includes('wiki.biligame.com'))
+        if (url.endsWith('.png')) return resolve(url);
+        // console.log("加载图片", url, url.includes('wiki.biligame.com'))
 
-        if (url.includes('wiki.biligame.com')) {
-            const res = await request(url, true)
-            const $ = cheerio.load(res);
-            let alt = url.split('/').pop();
-            const img = $(`img[alt="${alt}"]`);
 
-            // console.log(img, img.src);
+        let params = url.split("/");
+        let list = jsons[config.game].find(item => item.id == params[0]).list;
+        let item = list.find(item => item.title.includes(params[1]) || params[1].includes(item.title))
+        url = item.icon;
 
-            if (img.length > 0) {
-                console.log('✅ 找到图片 src:', img.attr('src'));
-            } else {
-                console.log('❌ 未找到对应 alt 的 <img>');
-            }
+        // console.log(item, url)
 
-            url = img.attr('src');
-        }
-
-        console.log("修改", url)
+        // console.log("修改", url)
 
         const ext = path.extname(new URL(url).pathname) || '.png';
         const id = generateId(url);
@@ -75,9 +92,9 @@ function downloadImage(url) {
         const folder = cacheDir + "_" + getConfig().game;
         const filePath = path.join(folder, fileName);
 
-        console.log(folder, !fs.existsSync(folder))
+        // console.log(folder, !fs.existsSync(folder))
         if (!fs.existsSync(folder)) {
-            console.log("filePath", filePath)
+            // console.log("filePath", filePath)
             await fs.mkdirSync(folder, { recursive: true });
         }
 
@@ -97,58 +114,20 @@ function downloadImage(url) {
             res.pipe(file);
             file.on('finish', () => {
                 file.close(() => {
-                    downloading.delete(url);
+                    let res = downloading.delete(originalUrl);
+                    console.log("✅ 下载完成", "删除完成", res);
                     resolve(filePath)
                 });
             });
         }).on('error', (err) => {
-            downloading.delete(url);
+            downloading.delete(originalUrl);
             fs.unlink(filePath, () => { });
             reject(err);
         });
     });
-    downloading.set(url, promise);
+    downloading.set(originalUrl, promise);
 
     return promise;
-}
-
-/**
- * 获取图片本地缓存路径
- * 若无缓存则下载并保存，数据库记录路径和时间戳
- */
-function getCachedImage(url) {
-    return new Promise((resolve, reject) => {
-        const id = generateId(url);
-
-        db.get('SELECT localPath, cachedAt FROM images WHERE id = ?', [id], async (err, row) => {
-            if (err) return reject(err);
-
-            // console.log("数据库 ", row, row.localPath, fs.existsSync(row.localPath))
-
-            // 如果数据库有记录，且文件存在，直接返回
-            if (row && row.localPath && fs.existsSync(row.localPath)) {
-                return resolve(row.localPath);
-            }
-
-            // 否则下载图片
-            try {
-                const localPath = await downloadImage(url);
-
-                // 更新或插入数据库记录
-                const now = Date.now();
-                db.run(
-                    `INSERT OR REPLACE INTO images (id, localPath, url, cachedAt) VALUES (?, ?, ?, ?)`,
-                    [id, localPath, url, now],
-                    (dbErr) => {
-                        if (dbErr) console.error('DB insert error:', dbErr);
-                        resolve(localPath);
-                    }
-                );
-            } catch (downloadErr) {
-                reject(downloadErr);
-            }
-        });
-    });
 }
 
 // /**
@@ -167,30 +146,17 @@ function getCachedImage(url) {
 //     });
 // }
 
-const request = async (url, text = false) => {
-    // console.log("连接", url)
-    const res = await fetch(url, {
-        timeout: 15 * 1000
-    })
-
-    if (text) {
-        return await res.text()
-    } else {
-        return await res.json()
-    }
-}
-
-const hsrBaseUrl = "https://raw.githubusercontent.com/Mar-7th/StarRailRes/refs/heads/master/icon/"
-const genshinBaseUrl = "https://wiki.biligame.com/ys/"
-
 const getLightConeIcon = (item) => {
     let url;
     switch (getConfig().game) {
         case "HSR":
-            url = path.join(hsrBaseUrl, "light_cone", `${item.item_id}.png`)
+            url = path.join("19", item.name)
             break;
         case "Genshin":
-            url = path.join(genshinBaseUrl, `文件:${item.name}.png`)
+            url = path.join("5", item.name)
+            break;
+        case "ZZZ":
+            url = path.join("45", item.name)
             break;
     }
     // console.log("url", url)
@@ -201,10 +167,24 @@ const getCharacterIcon = (item) => {
     let url;
     switch (getConfig().game) {
         case "HSR":
-            url = path.join(hsrBaseUrl, "character", `${item.item_id}.png`)
+            url = path.join("18", item.name)
             break;
         case "Genshin":
-            url = path.join(genshinBaseUrl, `文件:无背景-角色-${item.name}.png`)
+            url = path.join("25", item.name)
+            break;
+        case "ZZZ":
+            url = path.join("43", item.name)
+            break;
+    }
+    // console.log("url", url)
+    return url
+}
+
+const getBangbooIcon = (item) => {
+    let url;
+    switch (getConfig().game) {
+        case "ZZZ":
+            url = path.join("44", item.name)
             break;
     }
     // console.log("url", url)
@@ -214,5 +194,7 @@ const getCharacterIcon = (item) => {
 module.exports = {
     getLightConeIcon,
     getCharacterIcon,
-    getCachedImage
+    getBangbooIcon,
+    downloadImage,
+    LoadJson
 }

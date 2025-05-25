@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const { fetchData, getCurrentData, openFolderSelector } = require('./utils.js');
-const { getCachedImage } = require('./getIcon.js');
+const { LoadJson, downloadImage } = require('./getIcon.js');
 const { getGachaType } = require('./getGacha.js');
 const { setGame, getConfig } = require('./config.js');
 
@@ -62,8 +62,8 @@ ipcMain.handle('getConfig', async () => {
     return await getConfig()
 })
 
-ipcMain.handle('getCachedImage', async (evt, url) => {
-    let res = await getCachedImage(url);
+ipcMain.handle('downloadImage', async (evt, url) => {
+    let res = await downloadImage(url);
     // console.log("url ==>", url,res)
     return res
 })
@@ -75,4 +75,8 @@ ipcMain.handle('getGachaType', async (evt) => {
 ipcMain.handle('setGame', async (evt, game) => {
     console.log("setGame ==>", game)
     return await setGame(game)
+})
+
+ipcMain.handle('loadJson', async (evt) => {
+    return await LoadJson()
 })
