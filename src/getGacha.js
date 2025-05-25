@@ -25,6 +25,35 @@ const zzzTypeMap = new Map([
     ['5', '邦布频段']
 ])
 
+let normalPickUp = {
+    "Genshin": "https://operation-webstatic.mihoyo.com/gacha_info/hk4e/cn_gf01/2e3fe4dc94b444bd4c2d0e678be56b022b57c4ea/zh-cn.json?ts=1746574042",
+    "HSR": "https://operation-webstatic.mihoyo.com/gacha_info/hkrpg/prod_gf_cn/ad9815cdf2308104c377aac42c7f0cdd8d/zh-cn.json?ts=1748201816878",
+    "ZZZ": "https://operation-webstatic.mihoyo.com/gacha_info/nap/prod_gf_cn/40a0441f75c73deef8b958d37ce56679d91cef/zh-cn.json?ts=1745364100"
+}
+
+let histories = {
+    "Genshin": [
+        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/gi/character.json",
+        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/gi/weapon.json"
+    ],
+    "HSR": [
+        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/hsr/character.json",
+        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/hsr/weapon.json"
+    ],
+    "ZZZ": [
+        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/zzz/character.json",
+        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/zzz/weapon.json"
+    ]
+}
+
+function getNormalPickUpUrl() {
+    return normalPickUp[config.game];
+}
+
+function getHistoryUrl() {
+    return histories[config.game];
+}
+
 function updateApiDomain(host) {
     switch (config.game) {
         case 'HSR':
@@ -119,4 +148,4 @@ function getGachaLogUrl() {
     return url;
 }
 
-module.exports = { getQuerystring, getGachaType, getGachaLogUrl, urlMatch };
+module.exports = { getQuerystring, getGachaType, getGachaLogUrl, urlMatch, getNormalPickUpUrl, getHistoryUrl };

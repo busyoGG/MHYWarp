@@ -7,7 +7,7 @@ const os = require('os');
 
 const { mergeData } = require('./mergeData')
 const { getLightConeIcon, getCharacterIcon, getBangbooIcon } = require('./getIcon')
-const { getQuerystring, getGachaType, getGachaLogUrl, urlMatch } = require('./getGacha')
+const { getQuerystring, getGachaType, getGachaLogUrl, urlMatch, getNormalPickUpUrl, getHistoryUrl } = require('./getGacha')
 const { config, changeCurrent, saveConfig } = require('./config')
 
 // let apiDomain = 'https://api-takumi.mihoyo.com'
@@ -28,6 +28,7 @@ const localeMap = new Map([
 ])
 
 let dataMap = new Map()
+let history;
 
 function sendMsg(...msg) {
     if (process.env.NODE_ENV === 'development') {
@@ -41,6 +42,8 @@ const fetchData = async () => {
     await readData()
 
     // sendMsg(dataMap);
+    // getNormalUpData();
+    await getHistoryData();
 
     let url = await getUrl()
 
@@ -50,9 +53,10 @@ const fetchData = async () => {
         return false;
     }
 
-    console.log("url", url)
+    // console.log("url", url)
 
-    await tryRequest(url)
+    let res = await tryRequest(url)
+    if (!res) return false;
 
     const searchParams = await getQuerystring(url)
 
@@ -137,6 +141,7 @@ const readData = async () => {
     // localDataReaded = true
     const fileMap = await collectDataFiles()
 
+    history = [];
     // sendMsg(fileMap)
 
     for (let [name, dataPath] of fileMap) {
@@ -144,6 +149,7 @@ const readData = async () => {
             const data = await readJSON(dataPath, name)
 
             // sendMsg(data);
+            // console.log(name, dataPath)
 
             data.typeMap = new Map(data.typeMap)
             data.result = new Map(data.result)
@@ -156,6 +162,10 @@ const readData = async () => {
             });
             if (data.uid) {
                 dataMap.set(data.uid, data)
+            }
+
+            if (name.includes('history')) {
+                history = data;
             }
         } catch (e) {
             sendMsg(e, 'ERROR')
@@ -180,7 +190,21 @@ const findDataFiles = async (dataPath, fileMap) => {
         const prefix = config.game;
         // console.log("prefix", prefix, `^${prefix}-gacha-list-\\d+\\.json$`)
         for (let name of files) {
-            const regex = new RegExp(`^${prefix}-gacha-list-\\d+\\.json$`);
+            let regex = new RegExp(`^${prefix}-gacha-list-\\d+\\.json$`);
+
+            // console.log(name, regex.test(name))
+            if (regex.test(name) && !fileMap.has(name)) {
+                fileMap.set(name, dataPath)
+            }
+
+            // regex = new RegExp(`^${prefix}_normal_up.json$`);
+
+            // // console.log(name, regex.test(name))
+            // if (regex.test(name) && !fileMap.has(name)) {
+            //     fileMap.set(name, dataPath)
+            // }
+
+            regex = new RegExp(`^${prefix}_history.json$`);
 
             // console.log(name, regex.test(name))
             if (regex.test(name) && !fileMap.has(name)) {
@@ -392,7 +416,7 @@ const tryRequest = async (url, retry = false) => {
         sendMsg(gachaTypeUrl)
         const res = await request(gachaTypeUrl)
         // sendMsg(res)
-        checkResStatus(res)
+        return checkResStatus(res)
     } catch (e) {
         if (e.code === 'ERR_PROXY_CONNECTION_FAILED' && !retry) {
             await disableProxy()
@@ -405,18 +429,71 @@ const tryRequest = async (url, retry = false) => {
 
 const checkResStatus = (res) => {
     // const text = i18n.log
+    console.log(res)
     if (res.retcode !== 0) {
         let message = res.message
-        if (res.message === 'authkey timeout') {
-            message = "timeout"
-            sendMsg(true, 'AUTHKEY_TIMEOUT')
-        }
-        sendMsg(message)
+        sendMsg("Try Res === ", message)
         // throw new Error(message)
         return false;
     }
-    sendMsg(false, 'AUTHKEY_TIMEOUT')
-    return res
+    // sendMsg(false, 'AUTHKEY_TIMEOUT')
+    return true
+}
+
+// async function getNormalUpData() {
+//     let url = getNormalPickUpUrl();
+//     let res = await request(url);
+
+//     let list = [];
+
+//     console.log(config.game, url)
+//     switch (config.game) {
+//         case "Genshin":
+//             list = res.r5_prob_list.map(item => item.item_name);
+//             break;
+//         case "HSR":
+//             list = res.items_avatar_star_5.map(item => item.item_name);
+//             list.push(...res.items_light_cone_star_5.map(item => item.item_name));
+//             break;
+//         case "ZZZ":
+//             list = res.items_avatar_star_5.map(item => item.item_name);
+//             list.push(...res.items_light_cone_star_5.map(item => item.item_name));
+//             break;
+//     }
+
+//     // console.log(list)
+
+//     saveJSON(`${config.game}_normal_up.json`, list)
+// }
+
+async function getHistoryData() {
+    let historyUrls = getHistoryUrl();
+    let history = {};
+
+    for (let url of historyUrls) {
+        let historyData = await request(url)
+
+        for (let value of historyData) {
+            for (let item of value.items) {
+                // console.log(item.name)
+                if (!history[item.name]) {
+                    history[item.name] = [{
+                        start: value.start,
+                        end: value.end,
+                    }];
+                } else {
+                    history[item.name].push({
+                        start: value.start,
+                        end: value.end,
+                    });
+                }
+            }
+        }
+    }
+
+    // console.log(list)
+
+    saveJSON(`${config.game}_history.json`, history)
 }
 
 const getCurrentData = async () => {
@@ -462,7 +539,18 @@ const getCurrentData = async () => {
     }
     // sendMsg(output)
 
-    return output
+    // console.log(normalData);
+    // if (normalData.length == 0) {
+    //     await getNormalUpData()
+    // }
+
+    if (history.length == 0) {
+        await getHistoryData()
+    }
+
+    // console.log("history", history)
+
+    return { output, history }
 }
 
 async function openFolderSelector() {

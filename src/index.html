@@ -262,6 +262,24 @@
             border: 1px solid #ad893f;
             box-shadow: rgba(121, 111, 70, 0.644) 0px 0px 4px 0px;
         }
+
+        .wai {
+            background-color: rgb(208, 64, 64);
+            border-radius: 3px;
+            margin-left: 5px;
+            color: white;
+            font-size: 14px;
+            padding: 1px;
+            text-align: center;
+        }
+
+        .fei {
+            background: linear-gradient(90deg, rgba(255, 0, 0, 0.15), rgba(255, 255, 255, 0)) !important;
+        }
+
+        .ou {
+            background: linear-gradient(90deg, rgba(0, 255, 21, 0.15), rgba(255, 255, 255, 0)) !important;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -366,6 +384,8 @@
         var normalCount = 0;
         var bangbuCount = 0;
         var gachaType;
+        var normalUp;
+        var historyData;
 
         window.onload = async () => {
             console.log('页面加载完成了');
@@ -376,7 +396,7 @@
             initHtml();
 
             await initData();
-            console.log('数据加载完成了');
+            console.log('数据加载完成了', historyData);
             initAverage();
 
             console.log('统计加载完成了');
@@ -443,6 +463,16 @@
                         el.style.width = `100%`
                         el.style.display = 'flex';
                         el.style.alignItems = 'center';
+                        el.classList.remove('ou');
+                        el.classList.remove('fei');
+
+                        if (items[i].name != "未出货") {
+                            if (items[i].count > 80) {
+                                el.classList.add('fei');
+                            } else if (items[i].count < 10) {
+                                el.classList.add('ou');
+                            }
+                        }
 
                         let color = "#4caf50";
                         if (items[i].count > 70) {
@@ -451,14 +481,35 @@
                             color = "#ff9800";
                         }
 
+                        let wai = "";
+                        let pickTime = new Date(items[i].time);
+                        let historyTime = historyData[items[i].name];
+
+                        let waiMark = true;
+                        if (historyTime) {
+                            for (let j = 0; j < historyTime.length; j++) {
+                                console.log(pickTime, pickTime >= historyTime[j].start)
+                                if (pickTime >= new Date(historyTime[j].start) && pickTime <= new Date(historyTime[j].end)) {
+                                    waiMark = false;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (items[i].name != "未出货" && (!renderType.includes("常驻") || renderType.includes("新手")) && waiMark) {
+                            // console.log(items[i].name, "歪了")
+                            wai = "<span class='wai'>歪</span>"
+                        }
+
                         // console.log(items[i])
                         el.innerHTML = `
                         <span style="width:48px">${items[i].count} 抽</span>
                         <span style="margin-left: 20px;"></span>
                         <img data-src="${items[i].icon}" style="vertical-align: middle; margin-right: 8px; height:100%;aspect-ratio:1;border-radius: 5px;background-color:#f3dc9f;" />
                         <div style="width:100%">
-                            <div style="width:100%;display:flex;">
+                            <div style="width:100%;display:flex;justify-content:center;align-items: center;margin-bottom:5px">
                                 <span>${items[i].name}</span>
+                                ${wai}
                                 <span style="margin-left: auto;">${items[i].time}</span>
                             </div>
                             <div class="progress-container">
@@ -698,9 +749,10 @@
         }
 
         async function initData() {
-            const res = await window.utils.getCurrentData();
-            // console.log('读取当前数据:', res);
-
+            const { output, history } = await window.utils.getCurrentData();
+            // console.log('读取当前数据:', output, normalData);
+            let res = output;
+            historyData = history;
             // renderData = res;
 
             let result = {};
@@ -787,7 +839,8 @@
 
             let config = await window.utils.getConfig();
             //初始化数据
-            let res = await window.utils.getCurrentData();
+            let { output } = await window.utils.getCurrentData();
+            let res = output;
 
             if (Object.keys(res).length == 0) {
                 document.getElementById("no-data").classList.remove("hide");
