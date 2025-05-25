@@ -75,4 +75,4 @@ function getConfig() {
     return config;
 }
 
-module.exports = { setGame, config, changeCurrent, getConfig }
+module.exports = { setGame, config, changeCurrent, getConfig, saveConfig }

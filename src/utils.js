@@ -8,7 +8,7 @@ const os = require('os');
 const { mergeData } = require('./mergeData')
 const { getLightConeIcon, getCharacterIcon } = require('./getIcon')
 const { getQuerystring, getGachaType, getGachaLogUrl, urlMatch } = require('./getGacha')
-const { config, changeCurrent } = require('./config')
+const { config, changeCurrent, saveConfig } = require('./config')
 
 // let apiDomain = 'https://api-takumi.mihoyo.com'
 const localeMap = new Map([
@@ -328,6 +328,9 @@ const readLog = async () => {
             case "Genshin":
                 userPath = path.join(userPath, `YuanShen_Data`)
                 break;
+            case "ZZZ":
+                userPath = path.join(userPath, `ZenlessZoneZero_Data`)
+                break;
         }
 
         sendMsg("path", userPath);
@@ -365,7 +368,7 @@ async function getCacheText(gamePath) {
         windowsPathsNoEscape: true
     })
 
-    // console.log(results)
+    console.log(results)
 
     const timeSortedFiles = results
         .sort((a, b) => b.mtimeMs - a.mtimeMs)

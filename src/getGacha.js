@@ -18,6 +18,14 @@ const genshinTypeMap = new Map([
     ['100', '新手祈愿']
 ])
 
+const zzzTypeMap = new Map([
+    ['301', '角色活动祈愿'],
+    ['302', '武器活动祈愿'],
+    ['500', '集录祈愿'],
+    ['200', '常驻祈愿'],
+    ['100', '新手祈愿']
+])
+
 function updateApiDomain(host) {
     switch (config.game) {
         case 'HSR':
@@ -29,6 +37,9 @@ function updateApiDomain(host) {
             break;
         case 'Genshin':
             apiDomain = 'https://public-operation-hk4e.mihoyo.com'
+            break;
+        case 'ZZZ':
+            // apiDomain = 'https://public-operation-hk4e.mihoyo.com'
             break;
     }
 }
@@ -72,6 +83,9 @@ async function getGachaType() {
             break;
         case 'Genshin':
             gachaTypeMap = genshinTypeMap;
+            break;
+        case 'ZZZ':
+            gachaTypeMap = zzzTypeMap;
             break;
     }
 
