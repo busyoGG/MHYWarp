@@ -344,7 +344,7 @@
                 <div style="font-size: 14px;color:#b88b11">五星平均</div>
             </div>
         </div>
-        <div id="no-data" class="hide" style="width: 100%;text-align: center;">暂无数据</div>
+        <div id="no-data" class="chart-box hide"><span style="width: 100%;text-align: center;">暂无数据</span></div>
     </div>
 
     <div id="filter-buttons" class="buttons">
@@ -843,8 +843,10 @@
             let res = output;
 
             if (Object.keys(res).length == 0) {
+                document.getElementById("chart-box").classList.add("hide");
                 document.getElementById("no-data").classList.remove("hide");
             } else {
+                document.getElementById("chart-box").classList.remove("hide");
                 document.getElementById("no-data").classList.add("hide");
             }
 
