@@ -8,43 +8,34 @@ const os = require('os');
 const { mergeData } = require('./mergeData')
 const { getLightConeIcon, getCharacterIcon, getBangbooIcon } = require('./getIcon')
 const { getQuerystring, getGachaType, getGachaLogUrl, urlMatch, getNormalPickUpUrl, getHistoryUrl } = require('./getGacha')
-const { config, changeCurrent, saveConfig } = require('./config')
+const { config, changeCurrent, saveConfig, jsonUrl, iconJsonData } = require('./config')
+const { send } = require('process')
 
 // let apiDomain = 'https://api-takumi.mihoyo.com'
-const localeMap = new Map([
-    ['zh-cn', ['zh', 'zh-CN']],
-    ['zh-tw', ['zh-TW']],
-    ['de-de', ['de-AT', 'de-CH', 'de-DE', 'de']],
-    ['en-us', ['en-AU', 'en-CA', 'en-GB', 'en-NZ', 'en-US', 'en-ZA', 'en']],
-    ['es-es', ['es', 'es-419']],
-    ['fr-fr', ['fr-CA', 'fr-CH', 'fr-FR', 'fr']],
-    ['id-id', ['id']],
-    ['ja-jp', ['ja']],
-    ['ko-kr', ['ko']],
-    ['pt-pt', ['pt-BR', 'pt-PT', 'pt']],
-    ['ru-ru', ['ru']],
-    ['th-th', ['th']],
-    ['vi-vn', ['vi']]
-])
 
 let dataMap = new Map()
 let history;
 
-function sendMsg(...msg) {
+function sendMsg(msg) {
     if (process.env.NODE_ENV === 'development') {
-        console.log("send ", msg)
+        // console.log("send ", msg)
         const win = BrowserWindow.getAllWindows()[0];
-        win.webContents.send('log-message', msg);
+        win.webContents.send('logMessage', msg);
     }
 }
 
 const fetchData = async () => {
+
+    sendMsg("加载本地缓存");
     await readData()
 
-    // sendMsg(dataMap);
-    // getNormalUpData();
+    sendMsg("获取历史卡池信息");
     await getHistoryData();
 
+    sendMsg("获取图标信息");
+    await loadIconJson();
+
+    sendMsg("获取抽卡链接");
     let url = await getUrl()
 
     switch (url) {
@@ -55,12 +46,11 @@ const fetchData = async () => {
 
     // console.log("url", url)
 
+    sendMsg("准备请求数据")
     let res = await tryRequest(url)
     if (res != true) return res;
 
     const searchParams = await getQuerystring(url)
-
-    // sendMsg(searchParams)
 
     let queryString = searchParams.toString()
     // const vUid = await tryGetUid(queryString)
@@ -68,14 +58,15 @@ const fetchData = async () => {
     queryString = searchParams.toString()
     const gachaType = await getGachaType(searchParams.get('lang'))
 
-    // sendMsg(searchParams, gachaType, queryString)
-
     const result = new Map()
     const typeMap = new Map()
     const lang = searchParams.get('lang')
     let originUid = ''
     let originRegion = ''
-    let localTimeZone
+    let localTimeZone;
+
+    sendMsg("开始请求数据")
+
     for (const type of gachaType) {
         // console.log(type, gachaType)
 
@@ -89,10 +80,7 @@ const fetchData = async () => {
                 localTimeZone = region_time_zone
             }
         }
-        // sendMsg(list, region_time_zone, localTimeZone)
-        // list.forEach(item => {
-        //   item.time = convertTimeZone(item.time, region_time_zone, localTimeZone)
-        // })
+
         const logs = list.map((item) => {
             const { id, item_id, item_type, name, rank_type, time, gacha_id, gacha_type, count } = item
             return { id, item_id, item_type, name, rank_type, time, gacha_id, gacha_type, count }
@@ -107,21 +95,19 @@ const fetchData = async () => {
             originRegion = region
         }
 
-        // sendMsg(logs, originRegion)
     }
 
-    // sendMsg("typeMap", typeMap);
     const data = { result, typeMap, time: Date.now(), uid: originUid, lang, region: originRegion, region_time_zone: localTimeZone }
-    // sendMsg(data)
 
     const localData = dataMap.get(originUid)
     const mergedResult = mergeData(localData, data)
     data.result = mergedResult
     dataMap.set(originUid, data)
 
-    // sendMsg("result", data)
     await changeCurrent(originUid)
     await saveData(data)
+
+    sendMsg("数据同步完成")
 
     return true;
 }
@@ -142,14 +128,12 @@ const readData = async () => {
     const fileMap = await collectDataFiles()
 
     history = [];
-    // sendMsg(fileMap)
+
+    iconJsonData.length = 0;
 
     for (let [name, dataPath] of fileMap) {
         try {
             const data = await readJSON(dataPath, name)
-
-            // sendMsg(data);
-            // console.log(name, dataPath)
 
             data.typeMap = new Map(data.typeMap)
             data.result = new Map(data.result)
@@ -167,8 +151,12 @@ const readData = async () => {
             if (name.includes('history')) {
                 history = data;
             }
+
+            if (name.includes('icon')) {
+                iconJsonData.push(...data);
+            }
         } catch (e) {
-            sendMsg(e, 'ERROR')
+            console.log(e)
         }
     }
 
@@ -197,14 +185,14 @@ const findDataFiles = async (dataPath, fileMap) => {
                 fileMap.set(name, dataPath)
             }
 
-            // regex = new RegExp(`^${prefix}_normal_up.json$`);
-
-            // // console.log(name, regex.test(name))
-            // if (regex.test(name) && !fileMap.has(name)) {
-            //     fileMap.set(name, dataPath)
-            // }
-
             regex = new RegExp(`^${prefix}_history.json$`);
+
+            // console.log(name, regex.test(name))
+            if (regex.test(name) && !fileMap.has(name)) {
+                fileMap.set(name, dataPath)
+            }
+
+            regex = new RegExp(`^${prefix}_icon.json$`);
 
             // console.log(name, regex.test(name))
             if (regex.test(name) && !fileMap.has(name)) {
@@ -232,12 +220,27 @@ const userDataPath = path.resolve(os.homedir(), '.config/mhy_warp/userData')
 const saveJSON = async (name, data) => {
     try {
         let savePath = path.join(userDataPath, name);
-        sendMsg(savePath)
         await fs.outputJSON(savePath, data)
     } catch (e) {
-        sendMsg(e, 'ERROR')
         await sleep(3)
     }
+}
+
+const loadIconJson = async () => {
+    const url = jsonUrl[config.game];
+    iconJsonData.length = 0;
+    if (typeof url === "string") {
+        const res = await request(url)
+        iconJsonData.push(...res.data.list[0].children)
+    } else {
+        for (let i = 0; i < url.length; i++) {
+            const res = await request(url[i])
+            // console.log(res.data.list[0])
+            iconJsonData.push(...res.data.list)
+        }
+    }
+
+    saveJSON(`${config.game}_icon.json`, iconJsonData)
 }
 
 const getGachaLogs = async ({ name, key }, queryString) => {
@@ -251,14 +254,11 @@ const getGachaLogs = async ({ name, key }, queryString) => {
     let region_time_zone = ''
     let endId = '0'
     const url = `${getGachaLogUrl()}${queryString}`
-    // sendMsg("gacha url ", url)
     do {
-        // if (page % 10 === 0) {
-        //   sendMsg(i18n.parse(text.fetch.interval, { name, page }))
-        //   await sleep(1)
-        // }
         await sleep(0.3)
-        // sendMsg(i18n.parse(text.fetch.current, { name, page }))
+
+        sendMsg(`当前请求：${name}\n第 ${page} 页 第 ${(page - 1) * 20} - ${page * 20} 条数据`)
+
         res = await getGachaLog({ key, page, name, url, endId, retryCount: 5 })
 
         //没有结果 返回错误
@@ -295,6 +295,7 @@ const getGachaLogs = async ({ name, key }, queryString) => {
                             }
                         })
                         if (shouldBreak) {
+                            sendMsg(`${name}\n 数据已是最新，中止请求`)
                             break
                         }
                     }
@@ -335,7 +336,6 @@ const getUrl = async () => {
 }
 
 const request = async (url) => {
-    // sendMsg("抽卡连接", url)
     const res = await fetch(url, {
         timeout: 15 * 1000
     })
@@ -360,8 +360,6 @@ const readLog = async () => {
                 break;
         }
 
-        // sendMsg("path", userPath);
-        // console.log("文件夹确认", await fs.existsSync(userPath))
         if (!fs.existsSync(userPath)) {
             return "incorrect path";
         }
@@ -373,16 +371,13 @@ const readLog = async () => {
         const [cacheText, cacheFile] = res;
 
         const urlMch = urlMatch(cacheText)
-        // sendMsg(urlMch)
         if (urlMch) {
             cacheFolder = cacheFile.replace(/Cache_Data[/\\]data_2$/, '')
             return getLatestUrl(urlMch)
         }
 
-        // sendMsg("url not found")
         return "url not found"
     } catch (e) {
-        sendMsg("read fail!", e)
         return "url not found"
     }
 }
@@ -412,8 +407,6 @@ async function getCacheText(gamePath) {
 
     const cacheText = await fs.readFile(path.join(timeSortedFiles[0]), 'utf8')
 
-    sendMsg("time sorted files", timeSortedFiles[0])
-
     return [cacheText, timeSortedFiles[0]]
 }
 
@@ -422,16 +415,13 @@ const tryRequest = async (url, retry = false) => {
     if (!queryString) return false
     const gachaTypeUrl = `${getGachaLogUrl()}${queryString}&page=1&size=5&gacha_type=1&end_id=0`
     try {
-        sendMsg(gachaTypeUrl)
         const res = await request(gachaTypeUrl)
-        // sendMsg(res)
         return checkResStatus(res)
     } catch (e) {
         if (e.code === 'ERR_PROXY_CONNECTION_FAILED' && !retry) {
             await disableProxy()
             return await tryRequest(url, true)
         }
-        sendMsg(e.message.replace(url, '***'), 'ERROR')
         throw e
     }
 }
@@ -440,12 +430,8 @@ const checkResStatus = (res) => {
     // const text = i18n.log
     console.log(res)
     if (res.retcode !== 0) {
-        // let message = res.message
-        // sendMsg("Try Res === ", message)
-        // throw new Error(message)
         return "timeout";
     }
-    // sendMsg(false, 'AUTHKEY_TIMEOUT')
     return true
 }
 
@@ -506,10 +492,10 @@ async function getHistoryData() {
 }
 
 const getCurrentData = async () => {
-    dataMap = new Map()
-    await readData();
 
-    // sendMsg(config.current, dataMap, dataMap.size)
+    dataMap = new Map()
+
+    await readData();
 
     let output = {};
 
@@ -546,17 +532,14 @@ const getCurrentData = async () => {
             }
         }
     }
-    // sendMsg(output)
-
-    // console.log(normalData);
-    // if (normalData.length == 0) {
-    //     await getNormalUpData()
-    // }
 
     if (history.length == 0) {
         await getHistoryData()
     }
 
+    if (iconJsonData.length == 0) {
+        await loadIconJson();
+    }
     // console.log("history", history)
 
     return { output, history }

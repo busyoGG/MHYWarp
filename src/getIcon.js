@@ -3,7 +3,7 @@ const fs = require('fs')
 const crypto = require('crypto');
 const https = require('https');
 const os = require('os');
-const { getConfig, config } = require("./config");
+const { getConfig, iconJsonData } = require("./config");
 
 const request = async (url, text = false) => {
     // console.log("连接", url)
@@ -29,38 +29,6 @@ function generateId(url) {
 
 const downloading = new Map(); // 用于去重，key 是 url
 
-
-const jsonUrl = {
-    "Genshin": [
-        "https://act-api-takumi-static.mihoyo.com/common/blackboard/ys_obc/v1/home/content/list?app_sn=ys_obc&channel_id=25",
-        "https://act-api-takumi-static.mihoyo.com/common/blackboard/ys_obc/v1/home/content/list?app_sn=ys_obc&channel_id=5"
-    ],
-    "HSR": "https://act-api-takumi-static.mihoyo.com/common/blackboard/sr_wiki/v1/home/content/list?app_sn=sr_wiki&channel_id=17",
-    "ZZZ": "https://act-api-takumi-static.mihoyo.com/common/blackboard/zzz_wiki/v1/home/content/list?app_sn=zzz_wiki&channel_id=2"
-}
-
-let jsons = {}
-let jsonInited = {};
-
-const LoadJson = async () => {
-    if (jsonInited[config.game]) return;
-    jsonInited[config.game] = true;
-
-    const url = jsonUrl[config.game];
-    if (typeof url === "string") {
-        const res = await request(url)
-        jsons[config.game] = res.data.list[0].children
-    } else {
-        jsons[config.game] = [];
-        for (let i = 0; i < url.length; i++) {
-            const res = await request(url[i])
-            jsons[config.game].push(res.data.list[0])
-        }
-    }
-
-    // console.log("jsons", jsons[config.game])
-}
-
 /**
  * 下载远程图片，保存到本地缓存目录
  */
@@ -76,9 +44,8 @@ function downloadImage(url) {
         if (url.endsWith('.png')) return resolve(url);
         // console.log("加载图片", url, url.includes('wiki.biligame.com'))
 
-
         let params = url.split("/");
-        let list = jsons[config.game].find(item => item.id == params[0]).list;
+        let list = iconJsonData.find(item => item.id == params[0]).list;
         let item = list.find(item => item.title.includes(params[1]) || params[1].includes(item.title))
         url = item.icon;
 
@@ -195,6 +162,5 @@ module.exports = {
     getLightConeIcon,
     getCharacterIcon,
     getBangbooIcon,
-    downloadImage,
-    LoadJson
+    downloadImage
 }

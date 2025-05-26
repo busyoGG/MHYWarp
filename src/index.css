@@ -157,7 +157,7 @@ canvas {
 }
 
 .hide {
-    display: none;
+    display: none !important;
 }
 
 .tooltip {
@@ -330,7 +330,7 @@ canvas {
     margin-bottom: 10px; */
     padding: 10px;
     word-wrap: break-word;
-    white-space: normal;
+    white-space: pre-line;
     font-size: 18px;
     text-align: left;
 }
@@ -381,4 +381,8 @@ canvas {
     visibility: hidden;
     /* 隐藏可视性，但保留元素结构 */
     opacity: 0;
+}
+
+.text-center{
+    text-align: center !important;
 }

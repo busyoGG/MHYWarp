@@ -12,6 +12,17 @@ const config = {
     game: "HSR"
 }
 
+const jsonUrl = {
+    "Genshin": [
+        "https://act-api-takumi-static.mihoyo.com/common/blackboard/ys_obc/v1/home/content/list?app_sn=ys_obc&channel_id=25",
+        "https://act-api-takumi-static.mihoyo.com/common/blackboard/ys_obc/v1/home/content/list?app_sn=ys_obc&channel_id=5"
+    ],
+    "HSR": "https://act-api-takumi-static.mihoyo.com/common/blackboard/sr_wiki/v1/home/content/list?app_sn=sr_wiki&channel_id=17",
+    "ZZZ": "https://act-api-takumi-static.mihoyo.com/common/blackboard/zzz_wiki/v1/home/content/list?app_sn=zzz_wiki&channel_id=2"
+}
+
+var iconJsonData = [];
+
 const sleep = (sec = 1) => {
     return new Promise(rev => {
         setTimeout(rev, sec * 1000)
@@ -75,4 +86,4 @@ function getConfig() {
     return config;
 }
 
-module.exports = { setGame, config, changeCurrent, getConfig, saveConfig }
+module.exports = { setGame, config, changeCurrent, getConfig, saveConfig, iconJsonData, jsonUrl }

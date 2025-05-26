@@ -5,6 +5,8 @@ var bangbuCount = 0;
 var gachaType;
 var normalUp;
 var historyData;
+var errorModel = true;
+
 var errorList = {
     "incorrect path": {
         title: "错误码：15-4001",
@@ -20,23 +22,70 @@ var errorList = {
     }
 }
 
+let errorMessageBg = document.getElementById('error-message-bg');
+let errorMessageBox = document.getElementById('error-message-box');
+let errorMessageTitle = document.getElementById('error-message-title');
+let errorMessage = document.getElementById('error-message-content');
+let errorMessageButton = document.getElementById('error-message-button');
+
+const log = (message) => {
+    let date = new Date();
+    console.log(date + ":" + new Date().getMilliseconds(), JSON.stringify(message), message.indexOf('\n'));
+}
+
+const showSync = (message) => {
+    log(message);
+    showError("同步抽卡记录", message, false);
+}
+
+function showError(title, content, model = true) {
+    errorModel = model;
+    errorMessageBg.classList.remove('error-message-bg-hide');
+    errorMessageBox.classList.add('show');
+    errorMessageTitle.textContent = title;
+    errorMessage.textContent = content;
+
+    if (model) {
+        errorMessageButton.classList.remove("hide");
+        errorMessage.classList.remove("text-center")
+    } else {
+        errorMessageButton.classList.add("hide");
+        errorMessage.classList.add("text-center");
+    }
+
+    if (content.includes("完成")) {
+        hideError();
+    }
+}
+
+function hideError() {
+    errorMessageBg.classList.add('error-message-bg-hide');
+    errorMessageBox.classList.remove('show');
+    errorMessageButton.classList.remove("hide");
+}
+
 const init = async () => {
-    console.log('页面加载完成了');
+
+    log("初始化");
+
+    //注册全局函数
+    window.utils.registerLog((message) => {
+        showSync(message);
+    })
+
     gachaType = await window.utils.getGachaType();
 
-    await window.utils.loadJson();
+    // await window.utils.loadIconJson();
 
     initHtml();
 
     await initData();
-    console.log('数据加载完成了', historyData);
+    log("初始化本地抽卡记录数据");
+
     initAverage();
-
-    console.log('统计加载完成了');
-
     initPieChart();
 
-    console.log('图表加载完成了');
+    log("初始化数据统计")
 
     const container = document.getElementById('scroll-container');
     const spacer = document.getElementById('spacer');
@@ -162,6 +211,8 @@ const init = async () => {
     // 初始渲染
     renderItems();
 
+    log("初始化数据渲染")
+
     container.addEventListener('scroll', () => {
         renderItems();
     });
@@ -190,11 +241,6 @@ const init = async () => {
         }
     });
 
-    let errorMessageBg = document.getElementById('error-message-bg');
-    let errorMessageBox = document.getElementById('error-message-box');
-    let errorMessageTitle = document.getElementById('error-message-title');
-    let errorMessage = document.getElementById('error-message-content');
-
     let refreshBtn = document.getElementById('sync-data');
     refreshBtn.addEventListener('click', async () => {
 
@@ -206,15 +252,7 @@ const init = async () => {
             refreshBtn.firstElementChild.classList.add('fa-warning');
             refreshBtn.firstElementChild.style.color = 'red';
 
-            // setTimeout(() => {
-            //     console.log(res);
-            //     alert('同步失败，请检查文件夹路径或在游戏中重新打开跃迁历史\n' + res);
-            // }, 100);
-            errorMessageBg.classList.remove('error-message-bg-hide');
-            errorMessageTitle.textContent = errorList[res].title;
-            errorMessage.textContent = errorList[res].message;
-
-            errorMessageBox.classList.add('show');
+            showError(errorList[res].title, errorList[res].message)
 
             return;
         } else {
@@ -299,24 +337,26 @@ const init = async () => {
     });
 
     document.getElementById('error-message-confirm').addEventListener('click', () => {
-        errorMessageBg.classList.add('error-message-bg-hide');
-        errorMessageBox.classList.remove('show');
+
+        hideError();
 
         refreshBtn.firstElementChild.classList.remove('fa-warning');
         refreshBtn.firstElementChild.style.color = 'black';
     });
 
     errorMessageBg.addEventListener('click', () => {
-        errorMessageBg.classList.add('error-message-bg-hide');
-        errorMessageBox.classList.remove('show');
-
-        refreshBtn.firstElementChild.classList.remove('fa-warning');
-        refreshBtn.firstElementChild.style.color = 'black';
+        if (errorModel) {
+            hideError();
+            refreshBtn.firstElementChild.classList.remove('fa-warning');
+            refreshBtn.firstElementChild.style.color = 'black';
+        }
     });
 
     errorMessageBox.addEventListener('click', function (event) {
         event.stopPropagation(); // 阻止事件继续冒泡到父元素
     });
+
+    log("初始化完成");
 }
 
 function initHtml() {
@@ -492,6 +532,7 @@ function initAverage() {
     }
 }
 
+let myPieChart = {}; // 定义在模块外部，保持引用
 async function initPieChart() {
 
     let config = await window.utils.getConfig();
@@ -554,7 +595,9 @@ async function initPieChart() {
         } else {
             ele.parentElement.parentElement.classList.remove('hide');
             // console.log(item.data);
-            let myPieChart = new Chart(ctx, {
+            myPieChart[item.chart]?.destroy();
+
+            myPieChart[item.chart] = new Chart(ctx, {
                 type: 'pie', // 或 'doughnut'
                 data: {
                     labels: ['三星', '四星', '五星'],

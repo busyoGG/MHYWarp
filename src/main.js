@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const { fetchData, getCurrentData, openFolderSelector } = require('./utils.js');
-const { LoadJson, downloadImage } = require('./getIcon.js');
+const { loadIconJson, downloadImage } = require('./getIcon.js');
 const { getGachaType } = require('./getGacha.js');
 const { setGame, getConfig } = require('./config.js');
 
@@ -77,6 +77,6 @@ ipcMain.handle('setGame', async (evt, game) => {
     return await setGame(game)
 })
 
-ipcMain.handle('loadJson', async (evt) => {
-    return await LoadJson()
+ipcMain.handle('loadIconJson', async (evt) => {
+    return await loadIconJson()
 })

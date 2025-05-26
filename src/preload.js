@@ -8,9 +8,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
 contextBridge.exposeInMainWorld('utils', {
     fetchData: () => ipcRenderer.invoke('fetchData'),
-    registerLog: () => {
-        ipcRenderer.on('log-message', (event, msg) => {
-            console.log(msg);
+    registerLog: (callback) => {
+        ipcRenderer.on('logMessage', (event, msg) => {
+            // console.log(msg);
+            callback(msg);
         });
     },
     getCurrentData: () => ipcRenderer.invoke('getCurrentData'),
@@ -19,5 +20,5 @@ contextBridge.exposeInMainWorld('utils', {
     downloadImage: (url) => ipcRenderer.invoke('downloadImage', url),
     getGachaType: () => ipcRenderer.invoke('getGachaType'),
     setGame: (game) => ipcRenderer.invoke('setGame', game),
-    loadJson: () => ipcRenderer.invoke('loadJson'),
+    loadIconJson: () => ipcRenderer.invoke('loadIconJson'),
 })
