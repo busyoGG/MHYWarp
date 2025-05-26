@@ -39,9 +39,18 @@ const showSync = (message) => {
 }
 
 function showError(title, content, model = true) {
-    errorModel = model;
+
+    if (errorModel != model) {
+        errorModel = model;
+        errorMessageBox.classList.remove('show');
+        setTimeout(() => {
+            errorMessageBox.classList.add('show');
+        }, 200);
+    } else {
+        errorMessageBox.classList.add('show');
+    }
+
     errorMessageBg.classList.remove('error-message-bg-hide');
-    errorMessageBox.classList.add('show');
     errorMessageTitle.textContent = title;
     errorMessage.textContent = content;
 
