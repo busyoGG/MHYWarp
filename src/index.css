@@ -1,0 +1,384 @@
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding-bottom: 0px;
+    /* 留出底部空隙 */
+    box-sizing: border-box;
+    /* 包含padding */
+    overflow: hidden;
+}
+
+#scroll-container {
+    flex: 1 1 auto;
+    /* background: rgb(243, 254, 255); */
+    margin-bottom: 5px;
+    overflow-y: auto;
+    /* border: 1px solid #ccc; */
+    border-radius: 0px 0px 10px 10px;
+    position: relative;
+    font-family: sans-serif;
+
+    border-top: 1px solid rgb(214, 232, 234);
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+#scroll-container::-webkit-scrollbar {
+    width: 16px;
+    /* background-clip: content-box; */
+}
+
+#scroll-container::-webkit-scrollbar-thumb {
+    background-color: rgba(68, 174, 240, 0.295);
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+#scroll-container::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(43, 127, 179, 0.613);
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+#scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+    /* background-color: white; */
+}
+
+#spacer {
+    height: 0;
+}
+
+.item {
+    height: 60px;
+    box-sizing: border-box;
+    padding: 5px 10px;
+    border-bottom: 1px solid #eee;
+    position: absolute;
+    width: 100%;
+}
+
+#filter-buttons {
+    position: sticky;
+    top: 0;
+    background: rgb(233, 245, 246);
+    z-index: 10;
+    padding: 8px;
+
+    display: flex;
+    /* border: 1px solid #ccc; */
+    border-radius: 10px 10px 0px 0px;
+    margin-top: 8px;
+    /* margin-bottom: 8px; */
+
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+}
+
+#filter-buttons button {
+    margin-right: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgb(146, 165, 168);
+    background-color: #f9f9f9;
+    box-shadow: rgba(141, 152, 154, 0.644) 0px 0px 4px 1px;
+    box-sizing: border-box !important;
+    cursor: pointer;
+}
+
+.active {
+    position: relative;
+    /* ✅ 让 ::after 相对定位于这个元素 */
+    background-color: rgb(191, 245, 230) !important;
+}
+
+.active::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* border: 2px solid rgb(99, 189, 174); */
+    box-shadow: 0 0 0 2px rgb(99, 189, 174);
+    pointer-events: none;
+    /* transition: border-width 0.3s; */
+    border-radius: 8px;
+}
+
+#filter-buttons button:hover {
+    background-color: rgb(203, 229, 230);
+}
+
+.progress-container {
+    width: 100%;
+    height: 10px;
+    background-color: #eee;
+    border-radius: 5px;
+    overflow: hidden;
+    /* border: 1px solid #ccc; */
+}
+
+.progress-bar {
+    height: 100%;
+    transition: width 0.3s;
+}
+
+.chart-box {
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    /* margin: 2px; */
+    padding: 10px;
+    background-color: rgb(249, 243, 238);
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    /* aspect-ratio: 1 */
+}
+
+.chart {
+    height: 150px;
+    width: 100%;
+}
+
+canvas {
+    width: 100% !important;
+    /* 宽度自动适应 */
+    height: 100% !important;
+    /* 高度跟父容器保持一致 */
+}
+
+.hide {
+    display: none;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: max-content;
+    background-color: rgba(0, 0, 0, 0.774);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: -30px;
+    /* 提示框在按钮上方 */
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.info {
+    background-color: rgb(255, 237, 209);
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* margin-top: 10px; */
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.info div {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-change {
+    cursor: pointer;
+    height: 40px !important;
+    width: 40px !important;
+    /* aspect-ratio:1; */
+}
+
+#dropdown {
+    display: none;
+    border: 1px solid #ccc;
+    /* width: 130px; */
+    position: absolute;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    cursor: pointer;
+    border-radius: 10px;
+    left: 20px;
+    top: 45px;
+    font-size: 14px;
+    overflow: hidden;
+    z-index: 999;
+}
+
+#dropdown li {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    /* justify-content: center; */
+}
+
+#dropdown li:hover {
+    background-color: #eee;
+}
+
+#game-icon {
+    margin-left: 5px;
+    height: 80%;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    border: 1px solid #ad893f;
+    box-shadow: rgba(121, 111, 70, 0.644) 0px 0px 4px 0px;
+}
+
+.wai {
+    background-color: rgb(208, 64, 64);
+    border-radius: 3px;
+    margin-left: 5px;
+    color: white;
+    font-size: 14px;
+    padding: 1px;
+    text-align: center;
+}
+
+.fei {
+    background: linear-gradient(90deg, rgba(255, 0, 0, 0.15), rgba(255, 255, 255, 0)) !important;
+}
+
+.ou {
+    background: linear-gradient(90deg, rgba(0, 255, 21, 0.15), rgba(255, 255, 255, 0)) !important;
+}
+
+#error-message-bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: #00000088;
+    z-index: 9999;
+}
+
+#error-message-box {
+    position: absolute;
+    z-index: 10000;
+    top: 45%;
+    left: 50%;
+    /* transform: translate(-50%, -50%); */
+    text-align: center;
+    background-color: white;
+    font-size: 24px;
+    min-height: 100px;
+    min-width: 200px;
+    max-width: 300px;
+    border-radius: 10px;
+    box-shadow: #172124 0px 0px 40px 3px;
+    border: 3px solid #62c2d8;
+}
+
+#error-message-title {
+    position: relative;
+    height: 30px;
+    text-align: center;
+    align-content: center;
+    font-size: 20px;
+    color: rgb(7, 110, 123);
+    padding: 2px;
+}
+
+#error-message-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 5%;
+    /* 从左边 10% 开始 */
+    width: 90%;
+    /* 画 80% 的宽度 */
+    border-bottom: 3px solid rgb(164, 215, 222);
+}
+
+#error-message-content {
+    /* width: 100%; */
+    height: auto;
+    color: rgb(12, 133, 149);
+    /* margin-top: 10px;
+    margin-bottom: 10px; */
+    padding: 10px;
+    word-wrap: break-word;
+    white-space: normal;
+    font-size: 18px;
+    text-align: left;
+}
+
+#error-message-button {
+    /* height: 50px; */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#error-message-button button {
+    height: 30px;
+    width: auto;
+    background-color: rgb(11, 156, 175);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 20px;
+}
+
+.fade-in {
+    pointer-events: none;
+    /* 阻止点击 */
+    visibility: hidden;
+    /* 隐藏可视性，但保留元素结构 */
+    opacity: 0;
+    transform: translate(-50%, 0%) scale(0.6) !important;
+    transition: opacity .3s cubic-bezier(0, 0, 0.2, 1), transform .3s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.fade-in.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) !important;
+    pointer-events: auto;
+    /* 恢复点击 */
+    visibility: visible;
+    /* 显示可视性 */
+}
+
+.error-message-bg-hide {
+    pointer-events: none;
+    /* 阻止点击 */
+    visibility: hidden;
+    /* 隐藏可视性，但保留元素结构 */
+    opacity: 0;
+}

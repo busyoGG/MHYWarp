@@ -47,16 +47,16 @@ const fetchData = async () => {
 
     let url = await getUrl()
 
-    if (!url) {
-        sendMsg("No URL found")
-        // throw new Error("No URL found")
-        return false;
+    switch (url) {
+        case "incorrect path":
+        case "url not found":
+            return url;
     }
 
     // console.log("url", url)
 
     let res = await tryRequest(url)
-    if (!res) return false;
+    if (res != true) return res;
 
     const searchParams = await getQuerystring(url)
 
@@ -80,7 +80,7 @@ const fetchData = async () => {
         // console.log(type, gachaType)
 
         let gachaLogs = await getGachaLogs(type, queryString);
-        if (!gachaLogs) return false;
+        if (!gachaLogs) return gachaLogs;
 
         const { list, uid, region, region_time_zone } = gachaLogs
         if (localTimeZone === undefined) {
@@ -262,7 +262,7 @@ const getGachaLogs = async ({ name, key }, queryString) => {
         res = await getGachaLog({ key, page, name, url, endId, retryCount: 5 })
 
         //没有结果 返回错误
-        if (!res) return false;
+        if (!res) return "timeout";
 
         logs = res?.list || []
         if (!uid && logs.length) {
@@ -361,9 +361,16 @@ const readLog = async () => {
         }
 
         // sendMsg("path", userPath);
+        // console.log("文件夹确认", await fs.existsSync(userPath))
+        if (!fs.existsSync(userPath)) {
+            return "incorrect path";
+        }
 
-        const [cacheText, cacheFile] = await getCacheText(userPath)
-        // console.log(cacheText)
+        const res = await getCacheText(userPath);
+
+        if (!res) return "url not found";
+
+        const [cacheText, cacheFile] = res;
 
         const urlMch = urlMatch(cacheText)
         // sendMsg(urlMch)
@@ -372,11 +379,11 @@ const readLog = async () => {
             return getLatestUrl(urlMch)
         }
 
-        sendMsg("not found")
-        return false
+        // sendMsg("url not found")
+        return "url not found"
     } catch (e) {
         sendMsg("read fail!", e)
-        return false
+        return "url not found"
     }
 }
 
@@ -401,9 +408,11 @@ async function getCacheText(gamePath) {
         .sort((a, b) => b.mtimeMs - a.mtimeMs)
         .map(path => path.fullpath())
 
+    if (timeSortedFiles.length == 0) return null;
+
     const cacheText = await fs.readFile(path.join(timeSortedFiles[0]), 'utf8')
 
-    // sendMsg("time sorted files", timeSortedFiles[0], cacheText)
+    sendMsg("time sorted files", timeSortedFiles[0])
 
     return [cacheText, timeSortedFiles[0]]
 }
@@ -431,10 +440,10 @@ const checkResStatus = (res) => {
     // const text = i18n.log
     console.log(res)
     if (res.retcode !== 0) {
-        let message = res.message
-        sendMsg("Try Res === ", message)
+        // let message = res.message
+        // sendMsg("Try Res === ", message)
         // throw new Error(message)
-        return false;
+        return "timeout";
     }
     // sendMsg(false, 'AUTHKEY_TIMEOUT')
     return true
