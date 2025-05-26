@@ -17,11 +17,12 @@ let dataMap = new Map()
 let history;
 
 function sendMsg(msg) {
-    if (process.env.NODE_ENV === 'development') {
-        // console.log("send ", msg)
-        const win = BrowserWindow.getAllWindows()[0];
-        win.webContents.send('logMessage', msg);
-    }
+    // if (process.env.NODE_ENV === 'development') {
+        
+    // }
+    // console.log("send ", msg)
+    const win = BrowserWindow.getAllWindows()[0];
+    win.webContents.send('logMessage', msg);
 }
 
 const fetchData = async () => {

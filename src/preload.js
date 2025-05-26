@@ -9,6 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
 contextBridge.exposeInMainWorld('utils', {
     fetchData: () => ipcRenderer.invoke('fetchData'),
     registerLog: (callback) => {
+        // console.log('registering log callback');
         ipcRenderer.on('logMessage', (event, msg) => {
             // console.log(msg);
             callback(msg);

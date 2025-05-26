@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'development') {
         console.warn('electron-reload not found or failed to load.');
     }
 } else {
-    Menu.setApplicationMenu(null);
+    // Menu.setApplicationMenu(null);
 }
 
 function createWindow() {
