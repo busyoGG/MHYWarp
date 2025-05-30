@@ -18,7 +18,7 @@ let history;
 
 function sendMsg(msg) {
     // if (process.env.NODE_ENV === 'development') {
-        
+
     // }
     // console.log("send ", msg)
     const win = BrowserWindow.getAllWindows()[0];
@@ -167,6 +167,7 @@ const readData = async () => {
 }
 
 const collectDataFiles = async () => {
+    console.log("[MHYWarp] userDataPath ===== ", userDataPath)
     await fs.ensureDir(userDataPath)
     const fileMap = new Map()
     await findDataFiles(userDataPath, fileMap)

@@ -11,7 +11,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=development electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "build-linux": "electron-builder --linux",
+    "build-win": "electron-builder --win"
   },
   "keywords": [],
   "license": "ISC",
@@ -33,6 +35,12 @@
     "linux": {
       "target": [
         "AppImage"
+      ],
+      "icon": "res/icon.png"
+    },
+    "win": {
+      "target": [
+        "portable"
       ],
       "icon": "res/icon.png"
     }
