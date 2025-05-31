@@ -365,6 +365,30 @@ const init = async () => {
         event.stopPropagation(); // 阻止事件继续冒泡到父元素
     });
 
+    document.getElementById("export-btn").addEventListener('click', async () => {
+        await window.utils.exportData();
+        console.log("导出成功")
+    });
+
+    document.getElementById("import-btn").addEventListener('click', async () => {
+        await window.utils.importData();
+        console.log("导入成功")
+        
+        await initData();
+        initAverage();
+        initPieChart();
+        initInfo();
+
+        items = renderData[renderType];
+
+        // 清除旧渲染项
+        renderedItems.forEach(el => container.removeChild(el));
+        renderedItems.clear();
+
+        // 重新渲染
+        renderItems();
+    });
+
     log("初始化完成");
 }
 

@@ -22,4 +22,6 @@ contextBridge.exposeInMainWorld('utils', {
     getGachaType: () => ipcRenderer.invoke('getGachaType'),
     setGame: (game) => ipcRenderer.invoke('setGame', game),
     loadIconJson: () => ipcRenderer.invoke('loadIconJson'),
+    exportData: (data) => ipcRenderer.invoke('exportData'),
+    importData: (data) => ipcRenderer.invoke('importData'),
 })

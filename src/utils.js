@@ -57,7 +57,7 @@ const fetchData = async () => {
     // const vUid = await tryGetUid(queryString)
 
     queryString = searchParams.toString()
-    const gachaType = await getGachaType(searchParams.get('lang'))
+    const gachaType = await getGachaType()
 
     const result = new Map()
     const typeMap = new Map()
@@ -98,6 +98,7 @@ const fetchData = async () => {
 
     }
 
+    console.log("时区", localTimeZone);
     const data = { result, typeMap, time: Date.now(), uid: originUid, lang, region: originRegion, region_time_zone: localTimeZone }
 
     const localData = dataMap.get(originUid)
@@ -266,6 +267,8 @@ const getGachaLogs = async ({ name, key }, queryString) => {
         //没有结果 返回错误
         if (!res) return "timeout";
 
+        console.log(res);
+
         logs = res?.list || []
         if (!uid && logs.length) {
             uid = logs[0].uid
@@ -274,7 +277,7 @@ const getGachaLogs = async ({ name, key }, queryString) => {
             region = res.region
         }
         if (!region_time_zone) {
-            region_time_zone = res.region_time_zone
+            region_time_zone = res.region_time_zone | 8
         }
         list.push(...logs)
         page += 1
@@ -314,6 +317,7 @@ const getGachaLog = async ({ key, page, name, retryCount, url, endId }) => {
         // console.log(key, page, name, url, endId, retryCount)
         let pramGacha = config.game === "ZZZ" ? "real_gacha_type" : "gacha_type"
         let reqUrl = `${url}&${pramGacha}=${key}&page=${page}&size=${20}${endId ? '&end_id=' + endId : ''}`;
+        console.log(reqUrl)
         const res = await request(reqUrl)
         // console.log(reqUrl, res);
         if (res?.data?.list) {
@@ -547,6 +551,167 @@ const getCurrentData = async () => {
     return { output, history }
 }
 
+
+let games = {
+    "Genshin": "hk4e",
+    "HSR": "hkrpg",
+    "ZZZ": "nap"
+}
+
+async function exportData() {
+
+    const now = new Date();
+    const formatted = now.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false // 24 小时制
+    });
+    const outputTime = formatted.replace(/\//g, '-').replace(' ', '-');
+
+    const result = await dialog.showSaveDialog({
+        title: '保存文件',
+        defaultPath: app.getPath('downloads') + '/' + outputTime + "-" + config.game + '_export.json',
+        filters: [
+            { name: '文本文件', extensions: ['json'] },
+            { name: '所有文件', extensions: ['*'] }
+        ]
+    });
+
+
+    let filePath;
+    if (!result.canceled && result.filePath.length > 0) {
+        filePath = result.filePath;
+    } else {
+        return;
+    }
+
+    dataMap = new Map()
+
+    await readData();
+
+    let obj = {
+        "info": {
+            "export_timestamp": new Date().toLocaleString(),
+            "export_app": app.getName(),
+            "export_app_version": app.getVersion(),
+            "version": "v4.0",
+        },
+        [games[config.game]]: []
+    }
+
+    for (let [uid, data] of dataMap) {
+
+        let uidObj = {
+            uid: uid,
+            lang: data.lang,
+            list: []
+        }
+
+        for (let [key, value] of data.result) {
+            for (let item of value) {
+                if (!uidObj["timezone"]) {
+                    uidObj["timezone"] = data.region_time_zone;
+                }
+
+                let pullItem = {
+                    uigf_gacha_type: key,
+                    gacha_type: key,
+                    name: item.name,
+                    count: item.count,
+                    time: item.time,
+                    id: item.id,
+                    item_id: item.item_id,
+                    item_type: item.item_type,
+                    rank_type: item.rank_type,
+                    gacha_id: item.gacha_id,
+                }
+                uidObj.list.push(pullItem)
+                // console.log(pullItem)
+            }
+        }
+
+        obj[games[config.game]].push(uidObj);
+    }
+
+    await fs.outputJSON(filePath, obj)
+}
+
+async function importData() {
+    const result = await dialog.showOpenDialog({
+        defaultPath: app.getPath('downloads'),
+        filters: [
+            { name: '文本文件', extensions: ['json'] },
+            { name: '所有文件', extensions: ['*'] }
+        ]
+    });
+
+    let filePath;
+    if (!result.canceled && result.filePaths.length > 0) {
+        filePath = result.filePaths[0];
+    } else {
+        return;
+    }
+
+    try {
+        let data = await fs.readJSON(filePath);
+
+        await readData();
+
+        const typeMap = new Map()
+        const result = new Map()
+
+        const gachaType = await getGachaType()
+
+        for (const type of gachaType) {
+            typeMap.set(type.key, type.name)
+        }
+
+        for (let uidData of data[games[config.game]]) {
+            // console.log(item);
+            let localData = dataMap.get(uidData.uid);
+
+            let importDatas = new Map();
+            for (let item of uidData.list) {
+                let key = item.gacha_type;
+                if (!importDatas.has(key)) {
+                    importDatas.set(key, []);
+                }
+                let importItem = item;
+                delete importItem.uigf_gacha_type;
+                importDatas.get(key).push(importItem);
+            }
+
+            let mergedResult = mergeData(localData, {
+                uid: uidData.uid,
+                result: importDatas
+            });
+
+            const data = { result, typeMap, time: Date.now(), uid: uidData.uid, lang: uidData.lang, region: "cn_gf01", region_time_zone: uidData.timezone }
+            data.result = mergedResult
+            if (localData) {
+                data.region = localData.region;
+                // data.region_time_zone = localData.region_time_zone;
+                // data.lang = localData.lang;
+            }
+            dataMap.set(uidData.uid, data)
+
+            await changeCurrent(uidData.uid)
+            await saveData(data)
+            // console.log(localData.result.get("301").length, importDatas.get("301").length, res.get("301").length);
+            // console.log(importDatas);
+        }
+
+        return true;
+    } catch (e) {
+        console.log(e)
+        return "wrong file";
+    }
+}
+
 async function openFolderSelector() {
     const result = await dialog.showOpenDialog({
         properties: ['openDirectory']
@@ -567,4 +732,4 @@ async function openFolderSelector() {
     }
 }
 
-module.exports = { fetchData, getCurrentData, openFolderSelector }
+module.exports = { fetchData, getCurrentData, openFolderSelector, exportData, importData }
