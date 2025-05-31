@@ -1,9 +1,9 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
-const { fetchData, getCurrentData, openFolderSelector, exportData, importData } = require('./utils.js');
+const { fetchData, getCurrentData, openFolderSelector, exportData, importData, getAllUids } = require('./utils.js');
 const { loadIconJson, downloadImage } = require('./getIcon.js');
 const { getGachaType } = require('./getGacha.js');
-const { setGame, getConfig } = require('./config.js');
+const { setGame, getConfig, changeCurrent } = require('./config.js');
 
 // 开发模式启用 electron-reload
 if (process.env.NODE_ENV === 'development') {
@@ -87,4 +87,12 @@ ipcMain.handle("exportData", async (evt) => {
 
 ipcMain.handle("importData", async (evt) => {
     return await importData();
+})
+
+ipcMain.handle("getUids", async (evt) => { 
+    return getAllUids()
+})
+
+ipcMain.handle("changeCurrent", async (evt, uid) => {
+    await changeCurrent(uid)
 })

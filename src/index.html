@@ -13,12 +13,12 @@
 
 <body>
     <div class="info">
-        <div class="game-change">
+        <div class="game-change" style="position: relative;">
             <div class="tooltip">
                 <img src="../res/icon.png" id="game-icon">
                 <span class="tooltiptext">点击切换游戏</span>
             </div>
-            <ul id="dropdown">
+            <ul id="dropdown" class="dropdown">
                 <li data-game="Genshin"><img src="../res/genshin_logo.png"
                         style="height:20px;width: 20px;margin-right: 10px;pointer-events: none;">原神</li>
                 <li data-game="HSR"><img src="../res/hsr_logo.png"
@@ -27,8 +27,14 @@
                         style="height:20px;width: 20px;margin-right: 10px;pointer-events: none;">绝区零</li>
             </ul>
         </div>
-        <div>
-            <span id="uid" style="width:90% ;text-align: left;">UID</span>
+        <div style="width:90% ;text-align: left;">
+            <span id="uid-box" class="tooltip" style="position: relative;">
+                <div id="uid" style="cursor: pointer;"></div>
+                <ul id="uid-dropdown" class="dropdown">
+                    <!-- 动态生成 -->
+                </ul>
+                <span class="tooltiptext">点击切换用户</span>
+            </span>
         </div>
         <div>
             <img src="../res/102.png" style="height:80%;aspect-ratio:1;margin-right: 10px" id="special-icon">

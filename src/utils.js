@@ -732,4 +732,13 @@ async function openFolderSelector() {
     }
 }
 
-module.exports = { fetchData, getCurrentData, openFolderSelector, exportData, importData }
+function getAllUids() {
+    let result = [];
+    for (let [uid, data] of dataMap) {
+        result.push(uid)
+    }
+    return result;
+}
+
+
+module.exports = { fetchData, getCurrentData, openFolderSelector, exportData, importData, getAllUids, changeCurrent }

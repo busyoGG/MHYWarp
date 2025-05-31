@@ -24,4 +24,6 @@ contextBridge.exposeInMainWorld('utils', {
     loadIconJson: () => ipcRenderer.invoke('loadIconJson'),
     exportData: (data) => ipcRenderer.invoke('exportData'),
     importData: (data) => ipcRenderer.invoke('importData'),
+    getUids: () => ipcRenderer.invoke('getUids'),
+    changeCurrent: (current) => ipcRenderer.invoke('changeCurrent', current),
 })

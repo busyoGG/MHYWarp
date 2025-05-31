@@ -6,6 +6,7 @@ var gachaType;
 var normalUp;
 var historyData;
 var errorModel = true;
+var uids = [];
 
 var errorList = {
     "incorrect path": {
@@ -82,13 +83,12 @@ const init = async () => {
         showSync(message);
     })
 
-    gachaType = await window.utils.getGachaType();
-
     // await window.utils.loadIconJson();
+
+    await initData();
 
     initHtml();
 
-    await initData();
     log("初始化本地抽卡记录数据");
 
     initAverage();
@@ -250,6 +250,23 @@ const init = async () => {
         }
     });
 
+    async function reset() {
+        await initData();
+        // console.log(renderData)
+        initAverage();
+        initPieChart();
+        initInfo();
+
+        items = renderData[renderType];
+
+        // 清除旧渲染项
+        renderedItems.forEach(el => container.removeChild(el));
+        renderedItems.clear();
+
+        // 重新渲染
+        renderItems();
+    }
+
     let refreshBtn = document.getElementById('sync-data');
     refreshBtn.addEventListener('click', async () => {
 
@@ -275,19 +292,7 @@ const init = async () => {
             }, 1000);
         }
 
-        await initData();
-        initAverage();
-        initPieChart();
-        initInfo();
-
-        items = renderData[renderType];
-
-        // 清除旧渲染项
-        renderedItems.forEach(el => container.removeChild(el));
-        renderedItems.clear();
-
-        // 重新渲染
-        renderItems();
+        await reset();
     });
 
     const btn = document.getElementById('selectFolderBtn');
@@ -312,17 +317,36 @@ const init = async () => {
 
     initInfo();
 
+    function clearAllDropdown(input) {
+
+        if (input != dropdown && dropdown.style.display == "block") {
+            dropdown.style.display = "none";
+        }
+
+        if (input != uidDropdown && uidDropdown.style.display == "block") {
+            uidDropdown.style.display = "none";
+        }
+    }
+
     let changeBtn = document.querySelector('.game-change');
+    let dropdown = document.querySelector('#dropdown');
     changeBtn.addEventListener('click', async (event) => {
+        clearAllDropdown(dropdown)
         dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        event.stopPropagation();
+    });
+
+    let uidBtn = document.querySelector('#uid');
+    let uidDropdown = document.querySelector('#uid-dropdown');
+    uidBtn.addEventListener('click', async (event) => {
+        clearAllDropdown(uidDropdown);
+        uidDropdown.style.display = uidDropdown.style.display === 'block' ? 'none' : 'block';
         event.stopPropagation();
     });
 
     // 点击其它地方时隐藏下拉菜单
     document.addEventListener('click', () => {
-        if (dropdown.style.display == "block") {
-            dropdown.style.display = "none";
-        }
+        clearAllDropdown()
     });
 
     let gameIconMap = {
@@ -342,6 +366,18 @@ const init = async () => {
             console.log('选择了游戏:', selected);
             await window.utils.setGame(selected);
             location.reload();
+
+        }
+    });
+
+    uidDropdown.addEventListener('click', async (e) => {
+        if (e.target.tagName === 'LI') {
+            const selected = e.target.getAttribute('data-uid');
+            console.log('选择了 UID:', selected);
+            await window.utils.changeCurrent(selected);
+            // location.reload();
+
+            await reset();
         }
     });
 
@@ -373,26 +409,17 @@ const init = async () => {
     document.getElementById("import-btn").addEventListener('click', async () => {
         await window.utils.importData();
         console.log("导入成功")
-        
-        await initData();
-        initAverage();
-        initPieChart();
-        initInfo();
 
-        items = renderData[renderType];
-
-        // 清除旧渲染项
-        renderedItems.forEach(el => container.removeChild(el));
-        renderedItems.clear();
-
-        // 重新渲染
-        renderItems();
+        await reset();
     });
 
     log("初始化完成");
 }
 
-function initHtml() {
+function initHtml(skip = false) {
+
+    if (skip) return;
+
     let buttons = document.getElementById("buttons");
     buttons.innerHTML = '';
 
@@ -402,6 +429,7 @@ function initHtml() {
     let i = 0;
     for (let data of gachaType) {
 
+        console.log("生成", data)
         //生成按钮
         const btn = document.createElement('button');
         btn.dataset.filter = data.name; // 设置 data-filter 属性
@@ -445,6 +473,18 @@ function initHtml() {
 
         i++;
     }
+
+    let uidDropdown = document.getElementById("uid-dropdown");
+    uidDropdown.innerHTML = '';
+    for (let uid of uids) {
+        // let html = `<li data-uid="${uid}">${uid}</li>`
+        let html = document.createElement('li');
+        html.dataset.uid = uid;
+        html.textContent = uid;
+        uidDropdown.appendChild(html);
+    }
+
+    // await new Promise(resolve => requestAnimationFrame(() => resolve()));
 }
 
 async function initInfo() {
@@ -479,11 +519,14 @@ async function initInfo() {
 }
 
 async function initData() {
+    gachaType = await window.utils.getGachaType();
     const { output, history } = await window.utils.getCurrentData();
     // console.log('读取当前数据:', output, normalData);
     let res = output;
     historyData = history;
     // renderData = res;
+
+    uids = await window.utils.getUids();
 
     let result = {};
     specialCount = 0;
@@ -493,8 +536,6 @@ async function initData() {
     let config = await window.utils.getConfig();
 
     for (let key in res) {
-        let target;
-        let icon;
         let value = res[key];
         result[key] = [];
         let count = 0;
@@ -543,8 +584,11 @@ function initAverage() {
     const averageList = {}
 
     for (let data of gachaType) {
+        console.log("获取", data.name)
         averageList[data.name] = document.querySelector(`#${data.name}-chart`).parentElement.nextElementSibling;
     }
+
+    // console.log(averageList)
 
     for (let key in averageList) {
         let ele = averageList[key];
@@ -572,6 +616,8 @@ async function initPieChart() {
     //初始化数据
     let { output } = await window.utils.getCurrentData();
     let res = output;
+
+    console.log(Object.keys(res))
 
     if (Object.keys(res).length == 0) {
         document.getElementById("chart-box").classList.add("hide");
@@ -607,6 +653,8 @@ async function initPieChart() {
         // console.log(pieData[key])
     }
 
+    console.log(pieData, res, gachaType)
+
     let pieList = []
 
     for (let data of gachaType) {
@@ -615,6 +663,7 @@ async function initPieChart() {
             data: pieData[data.name]
         })
     }
+
 
     for (let item of pieList) {
         // console.log(item)

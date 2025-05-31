@@ -217,7 +217,7 @@ canvas {
     /* aspect-ratio:1; */
 }
 
-#dropdown {
+.dropdown {
     display: none;
     border: 1px solid #ccc;
     /* width: 130px; */
@@ -229,21 +229,23 @@ canvas {
     list-style: none;
     cursor: pointer;
     border-radius: 10px;
-    left: 20px;
-    top: 45px;
+    left: 70%;
+    top: 70%;
+    /* transform: translate(100%, 0%); */
     font-size: 14px;
     overflow: hidden;
     z-index: 999;
 }
 
-#dropdown li {
+.dropdown li {
     padding: 8px 12px;
     display: flex;
     align-items: center;
+    white-space: nowrap;
     /* justify-content: center; */
 }
 
-#dropdown li:hover {
+.dropdown li:hover {
     background-color: #eee;
 }
 
@@ -383,6 +385,6 @@ canvas {
     opacity: 0;
 }
 
-.text-center{
+.text-center {
     text-align: center !important;
 }
