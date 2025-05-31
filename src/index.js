@@ -410,7 +410,8 @@ const init = async () => {
         await window.utils.importData();
         console.log("导入成功")
 
-        await reset();
+        // await reset();
+        location.reload();
     });
 
     log("初始化完成");
