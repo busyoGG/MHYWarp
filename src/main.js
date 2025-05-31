@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
 const path = require('path');
 const { fetchData, getCurrentData, openFolderSelector, exportData, importData, getAllUids } = require('./utils.js');
 const { loadIconJson, downloadImage } = require('./getIcon.js');
@@ -89,10 +89,14 @@ ipcMain.handle("importData", async (evt) => {
     return await importData();
 })
 
-ipcMain.handle("getUids", async (evt) => { 
+ipcMain.handle("getUids", async (evt) => {
     return getAllUids()
 })
 
 ipcMain.handle("changeCurrent", async (evt, uid) => {
     await changeCurrent(uid)
+})
+
+ipcMain.handle("openUrl", async (evt, url) => {
+    shell.openExternal(url)
 })

@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, shell } = require('electron');
 // const path = require('path');
 // const { initSendMsg } = require(path.join(__dirname, 'utils.js'))
 
@@ -26,4 +26,5 @@ contextBridge.exposeInMainWorld('utils', {
     importData: (data) => ipcRenderer.invoke('importData'),
     getUids: () => ipcRenderer.invoke('getUids'),
     changeCurrent: (current) => ipcRenderer.invoke('changeCurrent', current),
+    openExternal: (url) => ipcRenderer.invoke('openUrl', url),
 })

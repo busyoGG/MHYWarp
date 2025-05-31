@@ -112,8 +112,19 @@
         <div id="spacer"></div>
     </div>
 
-    <div id="selectedFolder" style="margin-bottom: 15px;text-align: center;;">
-        未选择游戏文件夹
+
+    <div style="display: flex;justify-content: center;align-items: center; ">
+        <div style="display: flex;margin-bottom: 15px;text-align:left;width: 100%;align-items: center;">
+            <div class="fas fa-caret-right" style="margin-right: 5px;margin-left: 2px;"></div>
+            <div id="selectedFolder">
+                未选择游戏文件夹
+            </div>
+        </div>
+        <div style="display: flex;">
+            <a href="https://uigf.org/" class="fas fa-paperclip" style="color: rgb(58, 166, 205);font-size: 12px;"></a>
+            <a href="https://uigf.org/"
+                style="font-size: 12px;white-space: nowrap;height:30px;color: rgb(58, 166, 205);">了解 UIGF 标准</a>
+        </div>
     </div>
 
     <div id="error-message-bg" class="error-message-bg-hide">
@@ -133,6 +144,16 @@
 
         window.onload = function () {
             window.init();
+
+            document.body.addEventListener('click', (event) => {
+                const target = event.target;
+
+                if (target.tagName === 'A' && target.href.startsWith('http')) {
+                    event.preventDefault(); // 阻止默认行为
+                    console.log(window.utils.openExternal, target.href)
+                    window.utils.openExternal(target.href);
+                }
+            });
         }
     </script>
 
