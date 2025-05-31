@@ -20,6 +20,10 @@ var errorList = {
     "timeout": {
         title: "错误码：10310-4001",
         message: "网络连接超时或抽卡链接过期，请检查网络连接或在游戏中重新打开抽卡历史记录"
+    },
+    "wrong file": {
+        title: "错误码：10612-4001",
+        message: "错误的数据文件"
     }
 }
 
@@ -36,10 +40,10 @@ const log = (message) => {
 
 const showSync = (message) => {
     log(message);
-    showError("同步抽卡记录", message, false);
+    showError("同步抽卡记录", message, false, true);
 }
 
-function showError(title, content, model = true) {
+function showError(title, content, model = true, center = false) {
 
     if (errorModel != model) {
         errorModel = model;
@@ -57,10 +61,14 @@ function showError(title, content, model = true) {
 
     if (model) {
         errorMessageButton.classList.remove("hide");
-        errorMessage.classList.remove("text-center")
     } else {
         errorMessageButton.classList.add("hide");
+    }
+
+    if (center) {
         errorMessage.classList.add("text-center");
+    } else {
+        errorMessage.classList.remove("text-center")
     }
 
     if (content.includes("完成")) {
@@ -407,11 +415,16 @@ const init = async () => {
     });
 
     document.getElementById("import-btn").addEventListener('click', async () => {
-        await window.utils.importData();
-        console.log("导入成功")
+        let res = await window.utils.importData();
+        console.log(res)
+        if (res == true) {
+            console.log("导入成功")
+            location.reload();
+        } else {
+            showError(errorList[res].title, errorList[res].message, true, true)
+        }
 
         // await reset();
-        location.reload();
     });
 
     log("初始化完成");

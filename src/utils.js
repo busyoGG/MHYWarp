@@ -659,6 +659,8 @@ async function importData() {
     try {
         let data = await fs.readJSON(filePath);
 
+        if (!data[games[config.game]]) return "wrong file";
+
         await readData();
 
         const typeMap = new Map()

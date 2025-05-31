@@ -388,3 +388,20 @@ canvas {
 .text-center {
     text-align: center !important;
 }
+
+.json-button {
+    margin-right: 4px;
+    /* padding: 6px 10px; */
+    border-radius: 8px;
+    border: 1px solid rgb(146, 165, 168);
+    background-color: #fff6e4;
+    box-shadow: rgba(140, 124, 106, 0.644) 0px 0px 4px 1px;
+    box-sizing: border-box !important;
+    cursor: pointer;
+    height:70%;
+    width:110px;
+}
+
+.json-button:hover {
+    background-color: #f2e1bf;
+}
