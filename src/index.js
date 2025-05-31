@@ -7,6 +7,7 @@ var normalUp;
 var historyData;
 var errorModel = true;
 var uids = [];
+var currentData;
 
 var errorList = {
     "incorrect path": {
@@ -188,6 +189,7 @@ const init = async () => {
                 let pickTime = new Date(items[i].time);
                 let historyTime = historyData[items[i].name];
 
+                console.log(pickTime, historyData, items[i].name);
                 let waiMark = true;
                 if (historyTime) {
                     for (let j = 0; j < historyTime.length; j++) {
@@ -420,7 +422,7 @@ const init = async () => {
 
     document.getElementById("import-btn").addEventListener('click', async () => {
         let res = await window.utils.importData();
-        console.log(res)
+        // console.log(res)
         if (res == true) {
             console.log("导入成功")
             location.reload();
@@ -447,7 +449,7 @@ function initHtml(skip = false) {
     let i = 0;
     for (let data of gachaType) {
 
-        console.log("生成", data)
+        // console.log("生成", data)
         //生成按钮
         const btn = document.createElement('button');
         btn.dataset.filter = data.name; // 设置 data-filter 属性
@@ -538,14 +540,15 @@ async function initInfo() {
 
 async function initData() {
     gachaType = await window.utils.getGachaType();
-    const { output, history, error } = await window.utils.getCurrentData();
+    currentData = await window.utils.getCurrentData();
+    const { output, history5, error } = currentData;
 
     if (error != false) {
         showError(errorList[error].title, errorList[error].message, true, true)
     }
-    // console.log('读取当前数据:', output, normalData);
+    // console.log('读取当前数据:', output, history5);
     let res = output;
-    historyData = history;
+    historyData = history5;
     // renderData = res;
 
     uids = await window.utils.getUids();
@@ -636,10 +639,10 @@ async function initPieChart() {
 
     let config = await window.utils.getConfig();
     //初始化数据
-    let { output } = await window.utils.getCurrentData();
+    let { output } = currentData;
     let res = output;
 
-    console.log(Object.keys(res))
+    // console.log(Object.keys(res))
 
     if (Object.keys(res).length == 0) {
         document.getElementById("chart-box").classList.add("hide");

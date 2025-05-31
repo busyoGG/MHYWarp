@@ -48,7 +48,10 @@ function downloadImage(url) {
         let params = url.split("/");
         // console.log("params", params)
         // console.log(iconJsonData)
-        let list = iconJsonData.find(item => item.id == params[0]).list;
+        let list = iconJsonData.find(item => {
+            // console.log("检查 =>", item.id, params[0])
+            return item.id == params[0]
+        }).list;
         let item = list.find(item => {
             // console.log(item.title, params[1], item.alias_name)
             return item.title.includes(params[1]) || params[1].includes(item.title) || item.alias_name && (item.alias_name?.includes(params[1]) || params[1].includes(item.alias_name))
@@ -61,7 +64,7 @@ function downloadImage(url) {
         // console.log("修改", url)
 
         const ext = path.extname(new URL(url).pathname) || '.png';
-        const id = generateId(url);
+        const id = generateId(params[1]);
         const fileName = id + ext;
         const folder = cacheDir + "_" + getConfig().game;
         const filePath = path.join(folder, fileName);

@@ -13,9 +13,6 @@ const mergeList = (a, b) => {
     } else {
       let itemKeys = Object.keys(item)
       let savedKeys = Object.keys(saved[item.id])
-      if (itemKeys.length < 8) {
-        console.log(itemKeys.length, savedKeys.length)
-      }
       if (itemKeys.length != savedKeys.length) {
         for (let key of savedKeys) {
           if (!itemKeys.includes(key)) {

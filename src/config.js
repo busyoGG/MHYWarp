@@ -35,7 +35,7 @@ const userDataPath = path.resolve(os.homedir(), '.config/mhy_warp/userData')
 const saveJSON = async (name, data) => {
     try {
         let savePath = path.join(userDataPath, name);
-        console.log(savePath)
+        // console.log(savePath)
         await fs.outputJSON(savePath, data)
     } catch (e) {
         console.log(e, 'ERROR')

@@ -108,7 +108,7 @@ const fetchData = async () => {
 
     }
 
-    console.log("时区", localTimeZone);
+    // console.log("时区", localTimeZone);
     const data = { result, typeMap, time: Date.now(), uid: originUid, lang, region: originRegion, region_time_zone: localTimeZone }
 
     const localData = dataMap.get(originUid)
@@ -161,11 +161,17 @@ const readData = async () => {
             }
 
             if (name.includes('history')) {
+                //判断历史记录是否是旧的格式
+                if (data["version"] != "1") {
+                    await getHistoryData()
+                }
+
                 history = data;
             }
 
             if (name.includes('icon')) {
                 iconJsonData.push(...data);
+                // console.log("添加图标", new Date().toLocaleString())
             }
 
             if (name.includes('dic')) {
@@ -186,7 +192,7 @@ const readData = async () => {
 }
 
 const collectDataFiles = async () => {
-    console.log("[MHYWarp] userDataPath ===== ", userDataPath)
+    // console.log("[MHYWarp] userDataPath ===== ", userDataPath)
     await fs.ensureDir(userDataPath)
     const fileMap = new Map()
     await findDataFiles(userDataPath, fileMap)
@@ -268,7 +274,9 @@ const loadIconJson = async () => {
         }
     }
 
-    saveJSON(`${config.game}_icon.json`, iconJsonData)
+    // console.log("加载图标", iconJsonData)
+
+    await saveJSON(`${config.game}_icon.json`, iconJsonData)
 }
 
 const loadDicJson = async () => {
@@ -279,7 +287,7 @@ const loadDicJson = async () => {
     for (let key in dic) {
         reverseDic[dic[key]] = key;
     }
-    saveJSON(`${config.game}_dic.json`, dic)
+    await saveJSON(`${config.game}_dic.json`, dic)
 }
 
 const getGachaLogs = async ({ name, key }, queryString) => {
@@ -353,7 +361,7 @@ const getGachaLog = async ({ key, page, name, retryCount, url, endId }) => {
         // console.log(key, page, name, url, endId, retryCount)
         let pramGacha = config.game === "ZZZ" ? "real_gacha_type" : "gacha_type"
         let reqUrl = `${url}&${pramGacha}=${key}&page=${page}&size=${20}${endId ? '&end_id=' + endId : ''}`;
-        console.log(reqUrl)
+        // console.log(reqUrl)
         const res = await request(reqUrl)
         // console.log(reqUrl, res);
         if (res?.data?.list) {
@@ -472,67 +480,106 @@ const tryRequest = async (url, retry = false) => {
 
 const checkResStatus = (res) => {
     // const text = i18n.log
-    console.log(res)
+    // console.log(res)
     if (res.retcode !== 0) {
         return "timeout";
     }
     return true
 }
 
-// async function getNormalUpData() {
-//     let url = getNormalPickUpUrl();
-//     let res = await request(url);
+async function getNormalUpData() {
+    let url = getNormalPickUpUrl();
+    let res = await request(url);
 
-//     let list = [];
+    // console.log("normal ", res)
 
-//     console.log(config.game, url)
-//     switch (config.game) {
-//         case "Genshin":
-//             list = res.r5_prob_list.map(item => item.item_name);
-//             break;
-//         case "HSR":
-//             list = res.items_avatar_star_5.map(item => item.item_name);
-//             list.push(...res.items_light_cone_star_5.map(item => item.item_name));
-//             break;
-//         case "ZZZ":
-//             list = res.items_avatar_star_5.map(item => item.item_name);
-//             list.push(...res.items_light_cone_star_5.map(item => item.item_name));
-//             break;
-//     }
+    let list = [];
 
-//     // console.log(list)
+    // console.log(config.game, url)
+    switch (config.game) {
+        case "Genshin":
+            list = res.r5_prob_list;
+            break;
+        case "HSR":
+            list = res.items_avatar_star_5.map(item => {
+                let res = item;
+                res.item_type = "角色";
+                return res;
+            });
+            list.push(...res.items_light_cone_star_5.map(item => {
+                let res = item;
+                res.item_type = "武器";
+                return res;
+            }));
+            break;
+        case "ZZZ":
+            list = res.items_avatar_star_5.map(item => {
+                let res = item;
+                res.item_type = "代理人";
+                return res;
+            });
+            list.push(...res.items_light_cone_star_5.map(item => {
+                let res = item;
+                res.item_type = "音擎";
+                return res;
+            }));
+            break;
+    }
 
-//     saveJSON(`${config.game}_normal_up.json`, list)
-// }
+    // console.log(list)
+
+    // saveJSON(`${config.game}_normal_up.json`, list)
+
+    return list;
+}
 
 async function getHistoryData() {
     let historyUrls = getHistoryUrl();
-    let history = {};
+    history = {
+        itemType: {},
+        rank: {}
+    };
 
     for (let url of historyUrls) {
         let historyData = await request(url)
 
         for (let value of historyData) {
             for (let item of value.items) {
+                if (!history[item.rankType]) {
+                    history[item.rankType] = {};
+                }
                 // console.log(item.name)
-                if (!history[item.name]) {
-                    history[item.name] = [{
+                if (!history[item.rankType][item.name]) {
+                    history[item.rankType][item.name] = [{
                         start: value.start,
                         end: value.end,
                     }];
                 } else {
-                    history[item.name].push({
+                    history[item.rankType][item.name].push({
                         start: value.start,
                         end: value.end,
                     });
                 }
+
+                history["itemType"][item.name] = item.itemType == "Character" ? "角色" : "武器";
+
+                history["rank"][item.name] = item.rankType;
             }
         }
     }
 
-    // console.log(list)
+    let normal = await getNormalUpData();
+    for (let item of normal) {
+        history["itemType"][item.item_name] = item.item_type;
+        history["rank"][item.item_name] = 5;
+        // console.log(item, history["itemType"][item.item_name], history["rank"][item.item_name])
+    }
 
-    saveJSON(`${config.game}_history.json`, history)
+    // console.log(list)
+    // console.log("history", history)
+    history["version"] = "1";
+
+    await saveJSON(`${config.game}_history.json`, history)
 }
 
 const getCurrentData = async () => {
@@ -585,6 +632,7 @@ const getCurrentData = async () => {
     }
 
     if (history.length == 0) {
+        // console.log("加载 history")
         await getHistoryData()
     }
 
@@ -593,7 +641,8 @@ const getCurrentData = async () => {
     }
     // console.log("history", history)
 
-    return { output, history, error }
+    let history5 = history["5"];
+    return { output, history5, error }
 }
 
 
@@ -717,9 +766,13 @@ async function importData() {
             typeMap.set(type.key, type.name)
         }
 
+        // console.log(rankLevels)
 
         for (let uidData of data[games[config.game]]) {
             // console.log(item);
+            //目前仅支持东八区
+            let timeOffset = 8 - uidData.timezone;
+
             let localData = dataMap.get(uidData.uid);
 
             let importDatas = new Map();
@@ -735,6 +788,19 @@ async function importData() {
                     }
                     item.name = reverseDic[item.item_id];
                 }
+
+                if (!item.rank_type) {
+                    let isZZZ = config.game === "ZZZ";
+                    item.rank_type = history["rank"][item.name] || (isZZZ ? 2 : 3);
+
+                    // console.log("星级", item.name, rankLevels[item.name]);
+                }
+
+                if (!item.item_type) {
+                    item.item_type = history["itemType"][item.name];
+                }
+
+                item.time = new Date(new Date(item.time).getTime() + timeOffset * 3600 * 1000).toLocaleString().replaceAll("/", "-");
 
                 let importItem = item;
                 delete importItem.uigf_gacha_type;
