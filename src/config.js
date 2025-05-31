@@ -12,6 +12,8 @@ const config = {
     game: "HSR"
 }
 
+const uigfDicBase = "https://api.uigf.org/dict/"
+
 const jsonUrl = {
     "Genshin": [
         "https://act-api-takumi-static.mihoyo.com/common/blackboard/ys_obc/v1/home/content/list?app_sn=ys_obc&channel_id=25",
@@ -86,4 +88,17 @@ function getConfig() {
     return config;
 }
 
-module.exports = { setGame, config, changeCurrent, getConfig, saveConfig, iconJsonData, jsonUrl }
+function getUigfDicUrl() {
+    let url;
+    switch (config.game) {
+        case "Genshin":
+            url = uigfDicBase + "genshin/chs.json"
+            break;
+        case "HSR":
+            url = uigfDicBase + "starrail/chs.json"
+            break;
+    }
+    return url
+}
+
+module.exports = { setGame, config, changeCurrent, getConfig, saveConfig, iconJsonData, jsonUrl, getUigfDicUrl }

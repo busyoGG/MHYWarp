@@ -44,12 +44,19 @@ function downloadImage(url) {
         if (url.endsWith('.png')) return resolve(url);
         // console.log("加载图片", url, url.includes('wiki.biligame.com'))
 
+        // console.log("下载图片", url)
         let params = url.split("/");
+        // console.log("params", params)
+        // console.log(iconJsonData)
         let list = iconJsonData.find(item => item.id == params[0]).list;
-        let item = list.find(item => item.title.includes(params[1]) || params[1].includes(item.title))
+        let item = list.find(item => {
+            // console.log(item.title, params[1], item.alias_name)
+            return item.title.includes(params[1]) || params[1].includes(item.title) || item.alias_name && (item.alias_name?.includes(params[1]) || params[1].includes(item.alias_name))
+        })
+        // console.log("item", item)
         url = item.icon;
 
-        // console.log(item, url)
+        // console.log("图片链接", url)
 
         // console.log("修改", url)
 

@@ -79,7 +79,7 @@ function urlMatch(cacheText) {
             res = cacheText.match(/https[^?]+?\?[^?]+?&auth_appid=webview_gacha&.+?authkey=.+?&game_biz=hkrpg_/g)
             break;
         case 'Genshin':
-            res = cacheText.match(/https[^?]+?\?[^?]+?&auth_appid=webview_gacha&.+?authkey=.+?&game_biz=hk4e_/g)
+            res = cacheText.match(/https[^?]+?\?[^?]+?&auth_appid=webview_gacha&.+?authkey=.+?&game_biz=hk4e_cn/g)
             break;
         case 'ZZZ':
             res = cacheText.match(/https[^?]+?\?[^?]+?&auth_appid=webview_gacha&.+?authkey=.+?&game_biz=nap_cn/g)

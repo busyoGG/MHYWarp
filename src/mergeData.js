@@ -3,12 +3,32 @@ const mergeList = (a, b) => {
   if (!b || !b.length) return a
   const list = [...b, ...a]
   const result = []
-  const idSet = new Set()
+  // const idSet = {}
+  let saved = {};
+  let indexSet = {};
   list.forEach(item => {
-    if (!idSet.has(item.id)) {
+    if (!saved[item.id]) {
       result.push(item)
+      indexSet[item.id] = result.length - 1
+    } else {
+      let itemKeys = Object.keys(item)
+      let savedKeys = Object.keys(saved[item.id])
+      if (itemKeys.length < 8) {
+        console.log(itemKeys.length, savedKeys.length)
+      }
+      if (itemKeys.length != savedKeys.length) {
+        for (let key of savedKeys) {
+          if (!itemKeys.includes(key)) {
+            item[key] = saved[item.id][key] == '' ? item[key] : saved[item.id][key]
+          }
+        }
+
+        result[indexSet[item.id]] = item
+        // console.log("item合并出现不同", item, saved[item.id])
+      }
     }
-    idSet.add(item.id)
+    // idSet.add(item.id)
+    saved[item.id] = item;
   })
   return result.sort((m, n) => {
     const num = BigInt(m.id) - BigInt(n.id)

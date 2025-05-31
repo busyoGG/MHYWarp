@@ -8,13 +8,15 @@ const os = require('os');
 const { mergeData } = require('./mergeData')
 const { getLightConeIcon, getCharacterIcon, getBangbooIcon } = require('./getIcon')
 const { getQuerystring, getGachaType, getGachaLogUrl, urlMatch, getNormalPickUpUrl, getHistoryUrl } = require('./getGacha')
-const { config, changeCurrent, saveConfig, jsonUrl, iconJsonData } = require('./config')
+const { config, changeCurrent, saveConfig, jsonUrl, iconJsonData, getUigfDicUrl } = require('./config')
 const { send } = require('process')
 
 // let apiDomain = 'https://api-takumi.mihoyo.com'
 
 let dataMap = new Map()
 let history;
+let dic;
+let reverseDic = {};
 
 function sendMsg(msg) {
     // if (process.env.NODE_ENV === 'development') {
@@ -35,6 +37,9 @@ const fetchData = async () => {
 
     sendMsg("获取图标信息");
     await loadIconJson();
+
+    // sendMsg("获取 UIGF 词典信息");
+    await loadDicJson();
 
     sendMsg("获取抽卡链接");
     let url = await getUrl()
@@ -68,6 +73,8 @@ const fetchData = async () => {
 
     sendMsg("开始请求数据")
 
+    // console.log(reverseDic);
+
     for (const type of gachaType) {
         // console.log(type, gachaType)
 
@@ -83,7 +90,10 @@ const fetchData = async () => {
         }
 
         const logs = list.map((item) => {
-            const { id, item_id, item_type, name, rank_type, time, gacha_id, gacha_type, count } = item
+            let { id, item_id, item_type, name, rank_type, time, gacha_id, gacha_type, count } = item
+            if (!item_id || item_id == '') {
+                item_id = dic[name]
+            }
             return { id, item_id, item_type, name, rank_type, time, gacha_id, gacha_type, count }
         })
         logs.reverse()
@@ -157,6 +167,14 @@ const readData = async () => {
             if (name.includes('icon')) {
                 iconJsonData.push(...data);
             }
+
+            if (name.includes('dic')) {
+                dic = data;
+                reverseDic = {};
+                for (let key in dic) {
+                    reverseDic[dic[key]] = key;
+                }
+            }
         } catch (e) {
             console.log(e)
         }
@@ -196,6 +214,13 @@ const findDataFiles = async (dataPath, fileMap) => {
             }
 
             regex = new RegExp(`^${prefix}_icon.json$`);
+
+            // console.log(name, regex.test(name))
+            if (regex.test(name) && !fileMap.has(name)) {
+                fileMap.set(name, dataPath)
+            }
+
+            regex = new RegExp(`^${prefix}_dic.json$`);
 
             // console.log(name, regex.test(name))
             if (regex.test(name) && !fileMap.has(name)) {
@@ -246,6 +271,17 @@ const loadIconJson = async () => {
     saveJSON(`${config.game}_icon.json`, iconJsonData)
 }
 
+const loadDicJson = async () => {
+    const url = getUigfDicUrl();
+    const res = await request(url)
+    dic = res;
+    reverseDic = {};
+    for (let key in dic) {
+        reverseDic[dic[key]] = key;
+    }
+    saveJSON(`${config.game}_dic.json`, dic)
+}
+
 const getGachaLogs = async ({ name, key }, queryString) => {
     // const text = i18n.log
     let page = 1
@@ -267,7 +303,7 @@ const getGachaLogs = async ({ name, key }, queryString) => {
         //没有结果 返回错误
         if (!res) return "timeout";
 
-        console.log(res);
+        // console.log(res);
 
         logs = res?.list || []
         if (!uid && logs.length) {
@@ -286,7 +322,7 @@ const getGachaLogs = async ({ name, key }, queryString) => {
             endId = logs[logs.length - 1].id
         }
 
-        if (!config.fetchFullHistory && logs.length && uid && dataMap.has(uid)) {
+        if (!config.fetchFullHistory && logs.length && uid && dataMap.has(uid) && dataMap.get(uid).result.get(key)[0].item_id != '') {
             const result = dataMap.get(uid).result
             if (result.has(key)) {
                 const arr = result.get(key)
@@ -377,6 +413,7 @@ const readLog = async () => {
         const [cacheText, cacheFile] = res;
 
         const urlMch = urlMatch(cacheText)
+        // console.log(cacheText)
         if (urlMch) {
             cacheFolder = cacheFile.replace(/Cache_Data[/\\]data_2$/, '')
             return getLatestUrl(urlMch)
@@ -390,6 +427,7 @@ const readLog = async () => {
 
 const getLatestUrl = (list) => {
     let result = list[list.length - 1]
+    // console.log(result)
     return result
 }
 
@@ -507,12 +545,19 @@ const getCurrentData = async () => {
 
     let data = dataMap.get(config.current);
 
+    let error = false;
+
     if (data) {
         // console.log(data);
         for (let [key, value] of data.result) {
             let keyName = data.typeMap.get(key)
             output[keyName] = []
             for (let item of value) {
+
+                if (!item.item_id || item.item_id == '') {
+                    error = "no item id"
+                }
+
                 let outputItem = {
                     name: item.name,
                     count: item.count,
@@ -548,7 +593,7 @@ const getCurrentData = async () => {
     }
     // console.log("history", history)
 
-    return { output, history }
+    return { output, history, error }
 }
 
 
@@ -672,6 +717,7 @@ async function importData() {
             typeMap.set(type.key, type.name)
         }
 
+
         for (let uidData of data[games[config.game]]) {
             // console.log(item);
             let localData = dataMap.get(uidData.uid);
@@ -682,8 +728,17 @@ async function importData() {
                 if (!importDatas.has(key)) {
                     importDatas.set(key, []);
                 }
+
+                if (!item.name) {
+                    if (!dic) {
+                        dic = await loadDicJson();
+                    }
+                    item.name = reverseDic[item.item_id];
+                }
+
                 let importItem = item;
                 delete importItem.uigf_gacha_type;
+                // console.log("importItem", importItem)
                 importDatas.get(key).push(importItem);
             }
 

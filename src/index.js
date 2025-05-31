@@ -24,6 +24,10 @@ var errorList = {
     "wrong file": {
         title: "错误码：10612-4001",
         message: "错误的数据文件"
+    },
+    "no item id": {
+        title: "错误码：10351-4001",
+        message: "未找到物品ID，请尽快重新同步抽卡记录"
     }
 }
 
@@ -534,7 +538,11 @@ async function initInfo() {
 
 async function initData() {
     gachaType = await window.utils.getGachaType();
-    const { output, history } = await window.utils.getCurrentData();
+    const { output, history, error } = await window.utils.getCurrentData();
+
+    if (error != false) {
+        showError(errorList[error].title, errorList[error].message, true, true)
+    }
     // console.log('读取当前数据:', output, normalData);
     let res = output;
     historyData = history;
