@@ -93,6 +93,7 @@ const fetchData = async () => {
             let { id, item_id, item_type, name, rank_type, time, gacha_id, gacha_type, count } = item
             if (!item_id || item_id == '') {
                 item_id = dic[name]
+                console.log("no item id", id, name, dic[name])
             }
             return { id, item_id, item_type, name, rank_type, time, gacha_id, gacha_type, count }
         })
@@ -301,6 +302,8 @@ const getGachaLogs = async ({ name, key }, queryString) => {
     let region_time_zone = ''
     let endId = '0'
     const url = `${getGachaLogUrl()}${queryString}`
+    let haveItemIdChecked = false;
+    let haveItemId;
     do {
         await sleep(0.3)
 
@@ -330,7 +333,16 @@ const getGachaLogs = async ({ name, key }, queryString) => {
             endId = logs[logs.length - 1].id
         }
 
-        if (!config.fetchFullHistory && logs.length && uid && dataMap.has(uid) && dataMap.get(uid).result.get(key)[0].item_id != '') {
+        if (!haveItemIdChecked) {
+            haveItemIdChecked = true;
+            // console.log(dataMap);
+            haveItemId = dataMap.has(uid) && dataMap.get(uid).result.has(key) && !dataMap.get(uid).result.get(key).find(item => {
+                // console.log(item.item_id);
+                return !item.item_id || item.item_id == ''
+            });
+        }
+
+        if (!config.fetchFullHistory && logs.length && uid && dataMap.has(uid) && haveItemId) {
             const result = dataMap.get(uid).result
             if (result.has(key)) {
                 const arr = result.get(key)
@@ -344,6 +356,7 @@ const getGachaLogs = async ({ name, key }, queryString) => {
                             }
                         })
                         if (shouldBreak) {
+                            console.log(`${name} 本地数据已是最新，中止请求`)
                             sendMsg(`${name}\n 数据已是最新，中止请求`)
                             break
                         }
