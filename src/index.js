@@ -186,26 +186,28 @@ const init = async () => {
                 }
 
                 let wai = "";
-                let pickTime = new Date(items[i].time);
-                let historyTime = historyData[items[i].name];
 
-                console.log(pickTime, historyData, items[i].name);
-                let waiMark = true;
-                if (historyTime) {
-                    for (let j = 0; j < historyTime.length; j++) {
-                        // console.log(pickTime, pickTime >= historyTime[j].start)
-                        if (pickTime >= new Date(historyTime[j].start) && pickTime <= new Date(historyTime[j].end)) {
-                            waiMark = false;
-                            break;
+                if (!renderType.includes("邦布")) {
+                    let pickTime = new Date(items[i].time);
+                    let historyTime = historyData[items[i].name];
+
+                    console.log(pickTime, historyData, items[i].name);
+                    let waiMark = true;
+                    if (historyTime) {
+                        for (let j = 0; j < historyTime.length; j++) {
+                            // console.log(pickTime, pickTime >= historyTime[j].start)
+                            if (pickTime >= new Date(historyTime[j].start) && pickTime <= new Date(historyTime[j].end)) {
+                                waiMark = false;
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (items[i].name != "未出货" && (!renderType.includes("常驻") || renderType.includes("新手")) && waiMark) {
-                    // console.log(items[i].name, "歪了")
-                    wai = "<span class='wai'>歪</span>"
+                    if (items[i].name != "未出货" && (!renderType.includes("常驻") || renderType.includes("新手")) && waiMark) {
+                        // console.log(items[i].name, "歪了")
+                        wai = "<span class='wai'>歪</span>"
+                    }
                 }
-
                 // console.log(items[i])
                 el.innerHTML = `
                         <span style="width:48px">${items[i].count} 抽</span>
