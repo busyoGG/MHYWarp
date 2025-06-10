@@ -282,6 +282,9 @@ const loadIconJson = async () => {
 
 const loadDicJson = async () => {
     const url = getUigfDicUrl();
+    if (!url || url === "") {
+        return "no url";
+    }
     const res = await request(url)
     dic = res;
     reverseDic = {};

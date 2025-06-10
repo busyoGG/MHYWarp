@@ -8,6 +8,20 @@
 
 目前仅支持国服和简体中文。
 
+## 安装说明
+
+### 下载 release 版本
+
+下载最新发布的版本，双击 AppImage 运行即可。
+
+### AUR 包管理器安装
+
+Arch Linux 用户可以使用 AUR 包管理器安装。
+
+```
+yay -S mhy-warp-bin
+```
+
 ## 使用说明
 
 1. 点击文件夹选择按钮<img style="width: 20px;height:20px;" src="./readme/screenshot3.png">，选择存在 `StarRail_Data` 文件夹的游戏目录，假设 `/home/yourname/Star Rail/Game` 存在该文件夹，那你就需要选择 `/home/yourname/Star Rail/Game` 目录。
