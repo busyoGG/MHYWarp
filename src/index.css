@@ -489,18 +489,100 @@ canvas {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: #222222d7;
-    backdrop-filter: blur(15px);
+    background-color: #222222c0;
+    backdrop-filter: blur(10px);
     color: white;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    /* justify-content: center; */
+    /* align-items: center; */
     clip-path: circle(var(--ratio) at var(--cx) var(--cy));
     /* clip-path: circle(0% at var(--cx) var(--cy)); */
     transition: clip-path 1s ease-out;
     /* z-index: 9999; */
+    /* pointer-events: none; */
 
     --cx: 50%;
     --cy: 50%;
     --ratio: 0%;
+}
+
+.screenshot-box-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.screenshot-content {
+    text-align: center;
+    position: relative;
+    margin-top: var(--top) !important;
+    width: 100%;
+    height: calc(100% - var(--top) - var(--bottom));
+    /* padding: 10px; */
+    margin: 0px;
+    padding: 0px;
+
+    --top: 50px;
+    --bottom: 30px;
+}
+
+.screenshot-content-items {
+    /* display: inline-block; */
+    width: auto;
+    height: auto;
+    /* margin: auto; */
+    font-size: 0;
+}
+
+.screenshot-img {
+    border-radius: 10px;
+    outline: 1px solid #ccc;
+    cursor: pointer;
+
+    transform: scale(1);
+
+    transition: transform 0.5s;
+}
+
+.screenshot-img:hover {
+    box-shadow: rgba(249, 236, 218, 0.644) 0px 0px 20px 2px;
+    transform: scale(1.1);
+}
+
+.pages-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.pages-box button {
+    margin: 0px 5px;
+    background-color: #00000000;
+    border: none;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.page-btn {
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+
+    transition: background-color 0.5s;
+}
+
+.page-btn:hover {
+    background-color: #b4b4b4 !important;
+}
+
+.pages-box .page-active {
+    /* margin-right: 10px; */
+    background-color: #4a4a4a;
+    outline: 1px solid #cab091;
+    box-shadow: rgba(249, 236, 218, 0.644) 0px 0px 10px 1px;
 }

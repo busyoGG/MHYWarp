@@ -24,7 +24,7 @@ async function getScreenshotFiles() {
             const stat = await fs.stat(fullPath);
             if (stat.isFile()) {
                 // console.log('文件:', fullPath);
-                res.push(fullPath);
+                res.unshift(fullPath);
             }
         }
     } catch (error) {

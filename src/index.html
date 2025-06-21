@@ -45,7 +45,7 @@
                 <img src="../res/101.png" style="height:80%;aspect-ratio:1;margin-right: 10px" id="normal-icon">
                 <span id="normal-count">常驻消耗</span>
             </div>
-        
+
             <div style="width: auto;">
                 <div id="screenshot-btn" class="screenshot-btn">
                     <span class="fas fa-file-image"
@@ -54,7 +54,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div>
             <div id="chart-box" class="chart-box">
                 <div class="chart-container">
@@ -88,7 +88,7 @@
             </div>
             <div id="no-data" class="chart-box hide"><span style="width: 100%;text-align: center;">暂无数据</span></div>
         </div>
-        
+
         <div id="filter-buttons" class="buttons">
             <div id="buttons">
                 <button data-filter="角色活动跃迁" class="active">角色活动跃迁</button>
@@ -96,7 +96,7 @@
                 <button data-filter="常驻跃迁">常驻跃迁</button>
                 <button data-filter="新手跃迁">新手跃迁</button>
             </div>
-        
+
             <div style="display: flex; margin-left: auto;">
                 <button id="selectFolderBtn" class="tooltip">
                     <i class="fas fa-folder-open" style="font-size: 20px;"></i>
@@ -108,12 +108,12 @@
                 </button>
             </div>
         </div>
-        
+
         <div id="scroll-container">
             <div id="spacer"></div>
         </div>
-        
-        
+
+
         <div style="display: flex;justify-content: center;align-items: center;">
             <div style="height:100%;width:100%;display: flex;align-items: center;">
                 <div style="display: flex;text-align:left;width: 100%;align-items: center;">
@@ -123,7 +123,7 @@
                     </div>
                 </div>
             </div>
-        
+
             <div style="height:100%;display: flex;align-items: center;">
                 <button id="export-btn" class="json-button tooltip">
                     <span>导出</span>
@@ -136,14 +136,14 @@
                     <span class="tooltiptext top">导入该游戏所有用户的抽卡记录</span>
                 </button>
             </div>
-        
+
             <div style="height:100%;display: flex;align-items: center;">
                 <a href="https://uigf.org/" class="fas fa-paperclip"
                     style="color: rgb(58, 166, 205);font-size: 12px;text-decoration: none;"></a>
                 <a href="https://uigf.org/" style="font-size: 12px;white-space: nowrap;color: rgb(58, 166, 205);">了解
                     UIGF 标准</a>
             </div>
-            </div>
+        </div>
     </div>
 
     <div id="error-message-bg" class="error-message-bg-hide">
@@ -156,9 +156,16 @@
         </div>
     </div>
 
-    <div class="screenshot-box" id="screenshot-box">
-        <!-- 新页面内容 -->
-        <h1>新页面</h1>
+    <div class="screenshot-box-bg">
+        <div class="screenshot-box" id="screenshot-box">
+            <!-- 新页面内容 -->
+            <div class="screenshot-content">
+                <div id="screenshot-content" class="screenshot-content-items"></div>
+            </div>
+            <div id="pages-box" class="pages-box">
+
+            </div>
+        </div>
     </div>
 
     <script src="./chart.js"></script>
