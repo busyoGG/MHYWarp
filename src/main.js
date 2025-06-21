@@ -4,6 +4,7 @@ const { fetchData, getCurrentData, openFolderSelector, exportData, importData, g
 const { loadIconJson, downloadImage } = require('./getIcon.js');
 const { getGachaType } = require('./getGacha.js');
 const { setGame, getConfig, changeCurrent } = require('./config.js');
+const { getScreenshotFiles } = require('./screenshotUtils.js');
 
 // 开发模式启用 electron-reload
 if (process.env.NODE_ENV === 'development') {
@@ -99,4 +100,8 @@ ipcMain.handle("changeCurrent", async (evt, uid) => {
 
 ipcMain.handle("openUrl", async (evt, url) => {
     shell.openExternal(url)
+})
+
+ipcMain.handle("getScreenshotFiles", async (evt) => {
+    return await getScreenshotFiles();
 })

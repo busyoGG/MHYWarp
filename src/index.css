@@ -2,11 +2,23 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding-bottom: 0px;
+    width: 100vw;
+    /* padding-bottom: 0px; */
+    margin: 0px;
+    padding: 0px;
     /* 留出底部空隙 */
     box-sizing: border-box;
     /* 包含padding */
     overflow: hidden;
+}
+
+.normal-box {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
 }
 
 #scroll-container {
@@ -66,7 +78,7 @@ body {
     position: sticky;
     top: 0;
     background: rgb(233, 245, 246);
-    z-index: 10;
+    /* z-index: 10; */
     padding: 8px;
 
     display: flex;
@@ -185,7 +197,17 @@ canvas {
     white-space: nowrap;
 }
 
+.tooltip .top {
+    top: -30px;
+    bottom: auto;
+}
+
 .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip:hover .tooltiptext-top {
     visibility: visible;
     opacity: 1;
 }
@@ -390,18 +412,95 @@ canvas {
 }
 
 .json-button {
+    /* position: relative; */
+    display: block;
     margin-right: 4px;
+    /* margin-bottom:auto; */
     /* padding: 6px 10px; */
     border-radius: 8px;
     border: 1px solid rgb(146, 165, 168);
-    background-color: #fff6e4;
-    box-shadow: rgba(140, 124, 106, 0.644) 0px 0px 4px 1px;
+    background-color: rgb(234, 245, 249);
+    box-shadow: rgba(121, 140, 143, 0.428) 0px 0px 4px 0px;
     box-sizing: border-box !important;
     cursor: pointer;
-    height:70%;
-    width:110px;
+    height: auto;
+    /* top:0px; */
+    /* bottom: 10px; */
+    width: 46px;
 }
 
 .json-button:hover {
-    background-color: #f2e1bf;
+    background-color: rgb(201, 218, 224);
+}
+
+.screenshot-btn {
+    position: relative;
+    display: block;
+    /* left:0px; */
+    margin-right: 10px;
+    /* margin: auto; */
+    /* padding: 4px; */
+    border-radius: 15px;
+    border: 1px solid #cab091;
+    background-color: #f7d7be;
+    height: 30px !important;
+    width: 30px !important;
+    box-sizing: border-box;
+    cursor: pointer;
+    overflow: hidden;
+    color: #74542d;
+    /* box-shadow: rgba(178, 147, 107, 0.644) 0px 0px 4px 2px; */
+
+    z-index: 1;
+
+    transition: background-color 0.5s, color 0.5s, width 0.5s;
+}
+
+.screenshot-btn:hover {
+    width: 70px !important;
+}
+
+.screenshot-text {
+    position: absolute;
+    left: 27px;
+    /* margin-left: 5px; */
+    /* display: none; */
+    opacity: 0;
+    white-space: nowrap;
+    /* visibility: hidden; */
+    pointer-events: none;
+
+    transition: opacity 1s;
+}
+
+.screenshot-btn:hover .screenshot-text {
+    /* display: inline; */
+    /* visibility: visible; */
+    opacity: 1;
+}
+
+.dark-mode {
+    background-color: #373737;
+    color: white;
+    box-shadow: rgba(249, 236, 218, 0.644) 0px 0px 10px 1px;
+}
+
+.screenshot-box {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #222222d7;
+    backdrop-filter: blur(15px);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    clip-path: circle(var(--ratio) at var(--cx) var(--cy));
+    /* clip-path: circle(0% at var(--cx) var(--cy)); */
+    transition: clip-path 1s ease-out;
+    /* z-index: 9999; */
+
+    --cx: 50%;
+    --cy: 50%;
+    --ratio: 0%;
 }

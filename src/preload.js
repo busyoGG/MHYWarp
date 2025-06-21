@@ -27,4 +27,5 @@ contextBridge.exposeInMainWorld('utils', {
     getUids: () => ipcRenderer.invoke('getUids'),
     changeCurrent: (current) => ipcRenderer.invoke('changeCurrent', current),
     openExternal: (url) => ipcRenderer.invoke('openUrl', url),
+    getScreenshotFiles: () => ipcRenderer.invoke('getScreenshotFiles'),
 })

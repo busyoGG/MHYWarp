@@ -12,119 +12,138 @@
 </head>
 
 <body>
-    <div class="info">
-        <div class="game-change" style="position: relative;">
-            <div class="tooltip">
-                <img src="../res/icon.png" id="game-icon">
-                <span class="tooltiptext">点击切换游戏</span>
-            </div>
-            <ul id="dropdown" class="dropdown">
-                <li data-game="Genshin"><img src="../res/genshin_logo.png"
-                        style="height:20px;width: 20px;margin-right: 10px;pointer-events: none;">原神</li>
-                <li data-game="HSR"><img src="../res/hsr_logo.png"
-                        style="height:20px;width: 20px;margin-right: 10px;pointer-events: none;">崩坏：星穹铁道</li>
-                <li data-game="ZZZ"><img src="../res/zzz_logo.png"
-                        style="height:20px;width: 20px;margin-right: 10px;pointer-events: none;">绝区零</li>
-            </ul>
-        </div>
-        <div style="width:90% ;text-align: left;">
-            <span id="uid-box" class="tooltip" style="position: relative;">
-                <div id="uid" style="cursor: pointer;"></div>
-                <ul id="uid-dropdown" class="dropdown">
-                    <!-- 动态生成 -->
+    <div class="normal-box">
+        <div class="info">
+            <div class="game-change" style="position: relative;">
+                <div class="tooltip">
+                    <img src="../res/icon.png" id="game-icon">
+                    <span class="tooltiptext">点击切换游戏</span>
+                </div>
+                <ul id="dropdown" class="dropdown">
+                    <li data-game="Genshin"><img src="../res/genshin_logo.png"
+                            style="height:20px;width: 20px;margin-right: 10px;pointer-events: none;">原神</li>
+                    <li data-game="HSR"><img src="../res/hsr_logo.png"
+                            style="height:20px;width: 20px;margin-right: 10px;pointer-events: none;">崩坏：星穹铁道</li>
+                    <li data-game="ZZZ"><img src="../res/zzz_logo.png"
+                            style="height:20px;width: 20px;margin-right: 10px;pointer-events: none;">绝区零</li>
                 </ul>
-                <span class="tooltiptext">点击切换用户</span>
-            </span>
+            </div>
+            <div style="width:90% ;text-align: left;">
+                <span id="uid-box" class="tooltip" style="position: relative;">
+                    <div id="uid" style="cursor: pointer;"></div>
+                    <ul id="uid-dropdown" class="dropdown">
+                        <!-- 动态生成 -->
+                    </ul>
+                    <span class="tooltiptext">点击切换用户</span>
+                </span>
+            </div>
+            <div>
+                <img src="../res/102.png" style="height:80%;aspect-ratio:1;margin-right: 10px" id="special-icon">
+                <span id="special-count">限定消耗</span>
+            </div>
+            <div>
+                <img src="../res/101.png" style="height:80%;aspect-ratio:1;margin-right: 10px" id="normal-icon">
+                <span id="normal-count">常驻消耗</span>
+            </div>
+        
+            <div style="width: auto;">
+                <div id="screenshot-btn" class="screenshot-btn">
+                    <span class="fas fa-file-image"
+                        style="font-size: 20px;position: absolute;left:7px;pointer-events: none;"></span>
+                    <span class="screenshot-text">截图</span>
+                </div>
+            </div>
         </div>
+        
         <div>
-            <img src="../res/102.png" style="height:80%;aspect-ratio:1;margin-right: 10px" id="special-icon">
-            <span id="special-count">限定消耗</span>
-        </div>
-        <div>
-            <img src="../res/101.png" style="height:80%;aspect-ratio:1;margin-right: 10px" id="normal-icon">
-            <span id="normal-count">常驻消耗</span>
-        </div>
-        <button id="export-btn" class="json-button tooltip">
-            <span>导出</span>
-            <span class="tooltiptext">导出该游戏所有用户的抽卡记录</span>
-        </button>
-        <button id="import-btn" class="json-button tooltip">
-            <span>导入</span>
-            <span class="tooltiptext">导入该游戏所有用户的抽卡记录</span>
-        </button>
-    </div>
-
-    <div>
-        <div id="chart-box" class="chart-box">
-            <div class="chart-container">
-                <div>角色活动跃迁</div>
-                <div class="chart">
-                    <canvas id="character-chart" style="height: 100px;"></canvas>
+            <div id="chart-box" class="chart-box">
+                <div class="chart-container">
+                    <div>角色活动跃迁</div>
+                    <div class="chart">
+                        <canvas id="character-chart" style="height: 100px;"></canvas>
+                    </div>
+                    <div style="font-size: 14px;color:#b88b11">五星平均</div>
                 </div>
-                <div style="font-size: 14px;color:#b88b11">五星平均</div>
-            </div>
-            <div class="chart-container">
-                <div>光锥活动跃迁</div>
-                <div class="chart">
-                    <canvas id="weapon-chart"></canvas>
+                <div class="chart-container">
+                    <div>光锥活动跃迁</div>
+                    <div class="chart">
+                        <canvas id="weapon-chart"></canvas>
+                    </div>
+                    <div style="font-size: 14px;color:#b88b11">五星平均</div>
                 </div>
-                <div style="font-size: 14px;color:#b88b11">五星平均</div>
-            </div>
-            <div class="chart-container">
-                <div>常驻跃迁</div>
-                <div class="chart">
-                    <canvas id="normal-chart"></canvas>
+                <div class="chart-container">
+                    <div>常驻跃迁</div>
+                    <div class="chart">
+                        <canvas id="normal-chart"></canvas>
+                    </div>
+                    <div style="font-size: 14px;color:#b88b11">五星平均</div>
                 </div>
-                <div style="font-size: 14px;color:#b88b11">五星平均</div>
-            </div>
-            <div class="chart-container">
-                <div>新手跃迁</div>
-                <div class="chart">
-                    <canvas id="new-chart"></canvas>
+                <div class="chart-container">
+                    <div>新手跃迁</div>
+                    <div class="chart">
+                        <canvas id="new-chart"></canvas>
+                    </div>
+                    <div style="font-size: 14px;color:#b88b11">五星平均</div>
                 </div>
-                <div style="font-size: 14px;color:#b88b11">五星平均</div>
+            </div>
+            <div id="no-data" class="chart-box hide"><span style="width: 100%;text-align: center;">暂无数据</span></div>
+        </div>
+        
+        <div id="filter-buttons" class="buttons">
+            <div id="buttons">
+                <button data-filter="角色活动跃迁" class="active">角色活动跃迁</button>
+                <button data-filter="光锥活动跃迁">光锥活动跃迁</button>
+                <button data-filter="常驻跃迁">常驻跃迁</button>
+                <button data-filter="新手跃迁">新手跃迁</button>
+            </div>
+        
+            <div style="display: flex; margin-left: auto;">
+                <button id="selectFolderBtn" class="tooltip">
+                    <i class="fas fa-folder-open" style="font-size: 20px;"></i>
+                    <span class="tooltiptext top">选择游戏文件夹，如 path/to/Star Rail/Game/</span>
+                </button>
+                <button id="sync-data" class="tooltip" style="margin-right: 0px;">
+                    <i class="fas fa-sync-alt" style="font-size: 20px;"></i>
+                    <span class="tooltiptext top">同步数据</span>
+                </button>
             </div>
         </div>
-        <div id="no-data" class="chart-box hide"><span style="width: 100%;text-align: center;">暂无数据</span></div>
-    </div>
-
-    <div id="filter-buttons" class="buttons">
-        <div id="buttons">
-            <button data-filter="角色活动跃迁" class="active">角色活动跃迁</button>
-            <button data-filter="光锥活动跃迁">光锥活动跃迁</button>
-            <button data-filter="常驻跃迁">常驻跃迁</button>
-            <button data-filter="新手跃迁">新手跃迁</button>
+        
+        <div id="scroll-container">
+            <div id="spacer"></div>
         </div>
-
-        <div style="display: flex; margin-left: auto;">
-            <button id="selectFolderBtn" class="tooltip">
-                <i class="fas fa-folder-open" style="font-size: 20px;"></i>
-                <span class="tooltiptext">选择游戏文件夹，如 path/to/Star Rail/Game/</span>
-            </button>
-            <button id="sync-data" class="tooltip" style="margin-right: 0px;">
-                <i class="fas fa-sync-alt" style="font-size: 20px;"></i>
-                <span class="tooltiptext">同步数据</span>
-            </button>
-        </div>
-    </div>
-
-    <div id="scroll-container">
-        <div id="spacer"></div>
-    </div>
-
-
-    <div style="display: flex;justify-content: center;align-items: center; ">
-        <div style="display: flex;margin-bottom: 15px;text-align:left;width: 100%;align-items: center;">
-            <div class="fas fa-caret-right" style="margin-right: 5px;margin-left: 2px;"></div>
-            <div id="selectedFolder">
-                未选择游戏文件夹
+        
+        
+        <div style="display: flex;justify-content: center;align-items: center;">
+            <div style="height:100%;width:100%;display: flex;align-items: center;">
+                <div style="display: flex;text-align:left;width: 100%;align-items: center;">
+                    <div class="fas fa-caret-right" style="margin-right: 5px;margin-left: 2px;"></div>
+                    <div id="selectedFolder">
+                        未选择游戏文件夹
+                    </div>
+                </div>
             </div>
-        </div>
-        <div style="display: flex;">
-            <a href="https://uigf.org/" class="fas fa-paperclip" style="color: rgb(58, 166, 205);font-size: 12px;"></a>
-            <a href="https://uigf.org/"
-                style="font-size: 12px;white-space: nowrap;height:30px;color: rgb(58, 166, 205);">了解 UIGF 标准</a>
-        </div>
+        
+            <div style="height:100%;display: flex;align-items: center;">
+                <button id="export-btn" class="json-button tooltip">
+                    <span>导出</span>
+                    <span class="tooltiptext top">导出该游戏所有用户的抽卡记录</span>
+                </button>
+            </div>
+            <div style="height:100%;display: flex;align-items: center;">
+                <button id="import-btn" class="json-button tooltip">
+                    <span>导入</span>
+                    <span class="tooltiptext top">导入该游戏所有用户的抽卡记录</span>
+                </button>
+            </div>
+        
+            <div style="height:100%;display: flex;align-items: center;">
+                <a href="https://uigf.org/" class="fas fa-paperclip"
+                    style="color: rgb(58, 166, 205);font-size: 12px;text-decoration: none;"></a>
+                <a href="https://uigf.org/" style="font-size: 12px;white-space: nowrap;color: rgb(58, 166, 205);">了解
+                    UIGF 标准</a>
+            </div>
+            </div>
     </div>
 
     <div id="error-message-bg" class="error-message-bg-hide">
@@ -137,13 +156,20 @@
         </div>
     </div>
 
+    <div class="screenshot-box" id="screenshot-box">
+        <!-- 新页面内容 -->
+        <h1>新页面</h1>
+    </div>
+
     <script src="./chart.js"></script>
     <script src="./chartjs-plugin-datalabels"></script>
+    <script src="./screenshot.js"></script>
     <script src="./index.js"></script>
     <script>
 
         window.onload = function () {
             window.init();
+            window.screenshotInit();
 
             document.body.addEventListener('click', (event) => {
                 const target = event.target;

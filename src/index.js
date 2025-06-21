@@ -429,7 +429,7 @@ const init = async () => {
             console.log("导入成功")
             location.reload();
         } else {
-            showError(errorList[res].title, errorList[res].message, true, true)
+            // showError(errorList[res].title, errorList[res].message, true, true)
         }
 
         // await reset();
