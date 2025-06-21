@@ -3,8 +3,8 @@ const path = require('path');
 const { fetchData, getCurrentData, openFolderSelector, exportData, importData, getAllUids } = require('./utils.js');
 const { loadIconJson, downloadImage } = require('./getIcon.js');
 const { getGachaType } = require('./getGacha.js');
-const { setGame, getConfig, changeCurrent } = require('./config.js');
-const { getScreenshotFiles } = require('./screenshotUtils.js');
+const { setGame, getConfig, changeCurrent, iconJsonData } = require('./config.js');
+const { getScreenshotFiles, generateThumbnail, copyScreenshot } = require('./screenshotUtils.js');
 
 // 开发模式启用 electron-reload
 if (process.env.NODE_ENV === 'development') {
@@ -105,3 +105,11 @@ ipcMain.handle("openUrl", async (evt, url) => {
 ipcMain.handle("getScreenshotFiles", async (evt) => {
     return await getScreenshotFiles();
 })
+
+ipcMain.handle("generateThumbnail", async (evt, imagePath, width) => {
+    return await generateThumbnail(imagePath, width)
+});
+
+ipcMain.handle("copyScreenshot", async (evt, src) => {
+    copyScreenshot(src);
+});

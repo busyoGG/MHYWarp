@@ -451,7 +451,7 @@ canvas {
     color: #74542d;
     /* box-shadow: rgba(178, 147, 107, 0.644) 0px 0px 4px 2px; */
 
-    z-index: 1;
+    z-index: 11;
 
     transition: background-color 0.5s, color 0.5s, width 0.5s;
 }
@@ -501,6 +501,7 @@ canvas {
     transition: clip-path 1s ease-out;
     /* z-index: 9999; */
     /* pointer-events: none; */
+    z-index: 10;
 
     --cx: 50%;
     --cy: 50%;
@@ -585,4 +586,85 @@ canvas {
     background-color: #4a4a4a;
     outline: 1px solid #cab091;
     box-shadow: rgba(249, 236, 218, 0.644) 0px 0px 10px 1px;
+}
+
+.img-viewer-box-bg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 0px;
+    top: 0px;
+    z-index: 20;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.img-viewer-box {
+    height: 95%;
+    width: 95%;
+    /* aspect-ratio: 1; */
+}
+
+.img-viewer-img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    transform-origin: top left;
+    transition: transform 0.2s;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.dragging {
+    cursor: grabbing;
+}
+
+.img-viewer-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    z-index: 9999;
+    background-color: #4a4a4a;
+    outline: 1px solid #cab091;
+    box-shadow: rgba(249, 236, 218, 0.644) 0px 0px 10px 1px;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: transform 0.5s, box-shadow 0.5s;
+}
+
+.img-viewer-close:hover {
+    transform: scale(1.1);
+    box-shadow: rgba(249, 236, 218, 0.644) 0px 0px 20px 1px;
+}
+
+.img-menu {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: #ffffff6d;
+    backdrop-filter: blur(8px);
+    box-shadow: #494949 0px 0px 10px 0px;
+    z-index: 30;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.img-menu-item{
+    padding: 10px;
+    cursor: pointer;
+}
+
+.img-menu-item:hover{
+    background-color: #f7d7be4e;
 }

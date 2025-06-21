@@ -28,4 +28,6 @@ contextBridge.exposeInMainWorld('utils', {
     changeCurrent: (current) => ipcRenderer.invoke('changeCurrent', current),
     openExternal: (url) => ipcRenderer.invoke('openUrl', url),
     getScreenshotFiles: () => ipcRenderer.invoke('getScreenshotFiles'),
+    generateThumbnail: (imagePath, width) => ipcRenderer.invoke('generateThumbnail', imagePath, width),
+    copyScreenshot: (src) => ipcRenderer.invoke('copyScreenshot', src),
 })

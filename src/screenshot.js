@@ -1,14 +1,25 @@
-let screenshotBtn;
 let screenshotFiles;
+
+let screenshotBtn;
 let screenshotBox;
 let screenshotContent;
 let pagesBox;
+let imgViewerBoxBg;
+let imgViewerBox;
+let imgViewerImg;
+let viwerCloseBtn;
+let imgMenu;
 
 let screenshotBoxOpen = false;
 let screenshotItemCount = 0;
 let screenshotPageCount = 0;
 
-let pagesInited = false;
+let scale = 1;
+let offsetX = 0;
+let offsetY = 0;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
 
 let renderedItems = [];
 
@@ -19,22 +30,30 @@ let lastBtn;
 let nextBtn;
 let endBtn;
 
-const screenshotInit = () => {
+const screenshotInit = async () => {
     console.log("Screenshot init");
 
     screenshotBtn = document.getElementById("screenshot-btn");
     screenshotBox = document.getElementById("screenshot-box");
     screenshotContent = document.getElementById("screenshot-content");
     pagesBox = document.getElementById("pages-box");
+    imgViewerBoxBg = document.getElementById("img-viewer-box-bg");
+    imgViewerBox = document.getElementById("img-viewer-box");
+    imgViewerImg = document.getElementById("img-viewer-img");
+    viwerCloseBtn = document.getElementById("img-viewer-close");
+    imgMenu = document.getElementById("img-menu");
+
+    screenshotFiles = await window.utils.getScreenshotFiles();
+
+    initPages();
+    initViewer();
 
     screenshotBtn.addEventListener("click", async () => {
-        screenshotFiles = await window.utils.getScreenshotFiles();
 
         screenshotBoxOpen = !screenshotBoxOpen;
         showScreenshot(screenshotBoxOpen);
         generateScreenshot();
 
-        !pagesInited && (pagesInited = true) && showPages();
         updatePages();
     });
 
@@ -145,7 +164,9 @@ function generateScreenshot() {
 
             renderedItems.push(screenshot);
 
-
+            screenshot.addEventListener("click", () => {
+                showImg(screenshot.dataset.src);
+            });
         }
     }
 
@@ -167,11 +188,12 @@ function generateScreenshot() {
     renderScreenshot(imgs);
 }
 
-function renderScreenshot(data) {
+async function renderScreenshot(data) {
 
     for (let i = 0; i < data.length; i++) {
         const screenshot = renderedItems[i];
-        screenshot.src = data[i];
+        screenshot.src = await window.utils.generateThumbnail(data[i], 400);
+        screenshot.dataset.src = data[i];
 
         screenshot.classList.remove("hide");
     }
@@ -184,7 +206,7 @@ function renderScreenshot(data) {
     }
 }
 
-function showPages() {
+function initPages() {
 
     //创建按钮
     frontBtn = document.createElement("button");
@@ -292,6 +314,97 @@ function updatePages() {
 
         pageBtn.innerText = pageIndex + 1;
     }
+}
+
+function initViewer() {
+
+    imgViewerBox.addEventListener("wheel", (e) => {
+        e.preventDefault();
+
+        const prevScale = scale;
+        const zoomFactor = 1.1;
+        const delta = e.deltaY > 0 ? 1 / zoomFactor : zoomFactor;
+        const rect = imgViewerBox.getBoundingClientRect();
+
+        // 鼠标在容器中的位置
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // 计算鼠标在图像坐标系中的点
+        const dx = (mouseX - offsetX) / prevScale;
+        const dy = (mouseY - offsetY) / prevScale;
+
+        // 更新缩放值
+        scale = Math.min(Math.max(0.1, scale * delta), 10);
+
+        // 缩放后，重新计算偏移量，确保鼠标指针指向图像原点不变
+        offsetX = mouseX - dx * scale;
+        offsetY = mouseY - dy * scale;
+
+        imgViewerImg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+    });
+
+    imgViewerBox.addEventListener('mousedown', (e) => {
+        if (e.button === 0) {
+            isDragging = true;
+            dragStartX = e.clientX - offsetX;
+            dragStartY = e.clientY - offsetY;
+            imgViewerBox.classList.add('dragging');
+            imgViewerImg.style.transition = 'none';
+        }
+
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        offsetX = e.clientX - dragStartX;
+        offsetY = e.clientY - dragStartY;
+        // console.log("拖拽", offsetX, offsetY)
+        imgViewerImg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        imgViewerBox.classList.remove('dragging');
+        imgViewerImg.style.transition = 'transform .2s ';
+    });
+
+    viwerCloseBtn.addEventListener("click", () => {
+        imgViewerBoxBg.classList.add("hide");
+        // imgViewerImg.src = "";
+    });
+
+    imgViewerImg.addEventListener("mousedown", (e) => {
+        // console.log("点击", e.button)
+        if (e.button === 2) {
+            imgMenu.classList.remove("hide");
+            imgMenu.style.left = (e.clientX + 5) + "px";
+            imgMenu.style.top = (e.clientY + 5) + "px";
+        }
+    });
+
+    imgMenu.addEventListener("click", (e) => {
+        if (e.target.id === "img-menu-item-copy") {
+            window.utils.copyScreenshot(imgViewerImg.src);
+            imgMenu.classList.add("hide");
+        }
+    });
+
+    imgViewerBox.addEventListener("click", (e) => {
+        imgMenu.classList.add("hide");
+    });
+}
+
+function showImg(src) {
+    imgViewerBoxBg.classList.remove("hide");
+    imgViewerImg.src = src;
+
+    scale = 1;
+    offsetX = 0;
+    offsetY = 0;
+    dragStartX = 0;
+    dragStartY = 0;
+    imgViewerImg.style.transform = `translate(0px, 0px) scale(1)`;
 }
 
 window.screenshotInit = screenshotInit;
