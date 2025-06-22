@@ -238,11 +238,11 @@ async function initPages() {
 
     //创建按钮
     frontBtn = document.createElement("button");
-    frontBtn.innerText = "<<";
+    frontBtn.innerHTML = "<i class='fa fa-angle-double-left'></i>";
     // frontBtn.classList.add("btn");
 
     lastBtn = document.createElement("button");
-    lastBtn.innerText = "<";
+    lastBtn.innerHTML = "<i class='fa fa-angle-left'></i>";
     // lastBtn.classList.add("btn");
 
     pagesBox.appendChild(frontBtn);
@@ -265,11 +265,11 @@ async function initPages() {
     }
 
     nextBtn = document.createElement("button");
-    nextBtn.innerText = ">";
+    nextBtn.innerHTML = "<i class='fa fa-angle-right'></i>";
     // nextBtn.classList.add("btn");
 
     endBtn = document.createElement("button");
-    endBtn.innerText = ">>";
+    endBtn.innerHTML = "<i class='fa fa-angle-double-right'></i>";
     // endBtn.classList.add("btn");
 
     pagesBox.appendChild(nextBtn);

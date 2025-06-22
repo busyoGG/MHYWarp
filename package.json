@@ -1,6 +1,6 @@
 {
   "name": "mhywarp",
-  "version": "1.3.6",
+  "version": "2.0.0",
   "description": "",
   "author": {
     "name": "busyo",
@@ -24,6 +24,7 @@
     "electron-reload": "^2.0.0-alpha.1"
   },
   "dependencies": {
+    "@emnapi/runtime": "^1.4.3",
     "cheerio": "^1.0.0",
     "fs-extra": "^11.3.0",
     "glob": "^11.0.2",
@@ -31,6 +32,11 @@
     "sqlite3": "^5.1.7"
   },
   "build": {
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/sharp/**/*",
+      "**/node_modules/@img/**/*"
+    ],
     "appId": "org.busyo.mhywarp",
     "productName": "MHYWarp",
     "linux": {
