@@ -191,7 +191,7 @@ const init = async () => {
                     let pickTime = new Date(items[i].time);
                     let historyTime = historyData[items[i].name];
 
-                    console.log(pickTime, historyData, items[i].name);
+                    // console.log(pickTime, historyData, items[i].name);
                     let waiMark = true;
                     if (historyTime) {
                         for (let j = 0; j < historyTime.length; j++) {
@@ -680,7 +680,7 @@ async function initPieChart() {
         // console.log(pieData[key])
     }
 
-    console.log(pieData, res, gachaType)
+    // console.log(pieData, res, gachaType)
 
     let pieList = []
 
@@ -776,7 +776,7 @@ function adjustTooltipPosition(tooltip) {
     tooltip.style.left = '50%';  // 先恢复默认水平居中
     tooltip.style.right = 'auto';
 
-    console.log(tooltip);
+    // console.log(tooltip);
 
     const rect = tooltip.getBoundingClientRect();
     const padding = 10; // 距离窗口边缘的最小距离

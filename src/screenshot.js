@@ -121,7 +121,7 @@ function generateScreenshot() {
 
 
     let onePageTotal = repeatX * repeatY;
-    console.log("repeatX", repeatX, repeatY, onePageTotal, width, imgWidth + offsetX);
+    // console.log("repeatX", repeatX, repeatY, onePageTotal, width, imgWidth + offsetX);
 
     //计算页数
     let pageCount = Math.ceil(screenshotFiles.length / onePageTotal);
@@ -188,11 +188,21 @@ function generateScreenshot() {
     renderScreenshot(imgs);
 }
 
+let cachedThumbnail = {};
 async function renderScreenshot(data) {
 
     for (let i = 0; i < data.length; i++) {
         const screenshot = renderedItems[i];
-        screenshot.src = await window.utils.generateThumbnail(data[i], 400);
+        if (!cachedThumbnail[data[i]]) {
+            screenshot.src = "../res/loading.gif?v=" + i;
+        }
+        screenshot.classList.remove("hide");
+    }
+
+    for (let i = 0; i < data.length; i++) {
+        const screenshot = renderedItems[i];
+        cachedThumbnail[data[i]] = await window.utils.generateThumbnail(data[i], 400);
+        screenshot.src = cachedThumbnail[data[i]];
         screenshot.dataset.src = data[i];
 
         screenshot.classList.remove("hide");
@@ -397,13 +407,13 @@ function initViewer() {
     });
 
     viwerCloseBtn.addEventListener("click", () => {
-        imgViewerBoxBg.classList.add("hide");
+        imgViewerBoxBg.classList.add("invisible");
         // imgViewerImg.src = "";
     });
 
     imgMenu.addEventListener("click", (e) => {
         if (e.target.id === "img-menu-item-copy") {
-            console.log("复制", imgViewerImg.src);
+            // console.log("复制", imgViewerImg.src);
             window.utils.copyScreenshot(imgViewerImg.src);
             imgMenu.classList.add("hide");
         }
@@ -419,7 +429,7 @@ const cacheOrder = []; // 记录缓存顺序
 const maxCacheSize = 25;
 
 async function showImg(src) {
-    imgViewerBoxBg.classList.remove("hide");
+    imgViewerBoxBg.classList.remove("invisible");
 
     let img = imgClones[src];
     // console.log("showImg", img)
