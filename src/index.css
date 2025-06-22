@@ -515,6 +515,16 @@ canvas {
     pointer-events: none;
 }
 
+.screenshot-title {
+    position: absolute;
+    width: 100%;
+    height:50px;
+    pointer-events: none;
+    font-size: 25px;
+    top: 10px;
+    text-align: center;
+}
+
 .screenshot-content {
     text-align: center;
     position: relative;
@@ -531,6 +541,11 @@ canvas {
 
 .screenshot-content-items {
     /* display: inline-block; */
+    display: flex;
+    flex-wrap: wrap;
+    /* 多行时换行 */
+    justify-content: flex-start;
+    /* 子元素左对齐 */
     width: auto;
     height: auto;
     /* margin: auto; */
@@ -660,11 +675,11 @@ canvas {
     overflow: hidden;
 }
 
-.img-menu-item{
+.img-menu-item {
     padding: 10px;
     cursor: pointer;
 }
 
-.img-menu-item:hover{
+.img-menu-item:hover {
     background-color: #f7d7be4e;
 }

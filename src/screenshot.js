@@ -74,7 +74,7 @@ function showScreenshot(open) {
     const x = rect.left + rect.width * 0.7 + window.scrollX;
     const y = rect.top + rect.height / 2 + window.scrollY;
 
-    open ? screenshotBox.style.pointerEvents = "auto" : screenshotBox.style.pointerEvents = "none";
+    // screenshotBox.style.clipPath = "circle(var(--ratio) at var(--cx) var(--cy))";
 
     screenshotBox.style.transition = 'none';
     screenshotBox.style.setProperty("--cx", `${x}px`)
@@ -84,7 +84,7 @@ function showScreenshot(open) {
     screenshotBox.offsetWidth;
 
     screenshotBox.style.transition = 'clip-path .6s ease-out';
-    screenshotBox.style.setProperty("--ratio", open ? "150%" : "0%")
+    screenshotBox.style.setProperty("--ratio", open ? "140%" : "0%")
 
     open ? screenshotBtn.classList.add("dark-mode") : screenshotBtn.classList.remove("dark-mode");
 }
@@ -206,7 +206,25 @@ async function renderScreenshot(data) {
     }
 }
 
-function initPages() {
+async function initPages() {
+
+    let config = await window.utils.getConfig();
+    let title = document.getElementById("screenshot-title");
+
+    let titleText;
+    switch (config.game) {
+        case "Genshin":
+            titleText = "原神 截图";
+            break;
+        case "HSR":
+            titleText = "崩坏：星穹铁道 截图";
+            break;
+        case "ZZZ":
+            titleText = "绝区零 截图";
+            break;
+    }
+
+    title.textContent = titleText;
 
     //创建按钮
     frontBtn = document.createElement("button");
@@ -270,10 +288,15 @@ function initPages() {
         updatePages();
         generateScreenshot();
     });
+
+    screenshotBox.addEventListener("transitionend", () => {
+        screenshotBoxOpen ? screenshotBox.style.pointerEvents = "auto" : screenshotBox.style.pointerEvents = "none";
+        // screenshotBoxOpen && (screenshotBox.style.clipPath = "none");
+    })
 }
 
 function updatePages() {
-    let totalPage = Math.floor(screenshotFiles.length / screenshotItemCount);
+    let totalPage = Math.ceil(screenshotFiles.length / screenshotItemCount) - 1;
     let startIndex = Math.max(0, screenshotPageCount - 3);
     let endIndex = Math.min(screenshotPageCount + 3, totalPage);
 
@@ -351,6 +374,10 @@ function initViewer() {
             dragStartY = e.clientY - offsetY;
             imgViewerBox.classList.add('dragging');
             imgViewerImg.style.transition = 'none';
+        } else if (e.button === 2) {
+            imgMenu.classList.remove("hide");
+            imgMenu.style.left = (e.clientX + 5) + "px";
+            imgMenu.style.top = (e.clientY + 5) + "px";
         }
 
     });
@@ -374,18 +401,10 @@ function initViewer() {
         // imgViewerImg.src = "";
     });
 
-    imgViewerImg.addEventListener("mousedown", (e) => {
-        // console.log("点击", e.button)
-        if (e.button === 2) {
-            imgMenu.classList.remove("hide");
-            imgMenu.style.left = (e.clientX + 5) + "px";
-            imgMenu.style.top = (e.clientY + 5) + "px";
-        }
-    });
-
     imgMenu.addEventListener("click", (e) => {
         if (e.target.id === "img-menu-item-copy") {
-            window.utils.copyScreenshot(imgViewerImg.dataset.src);
+            console.log("复制", imgViewerImg.src);
+            window.utils.copyScreenshot(imgViewerImg.src);
             imgMenu.classList.add("hide");
         }
     });
@@ -401,7 +420,6 @@ const maxCacheSize = 25;
 
 async function showImg(src) {
     imgViewerBoxBg.classList.remove("hide");
-    imgViewerImg.dataset.src = src;
 
     let img = imgClones[src];
     // console.log("showImg", img)

@@ -87,6 +87,8 @@ function copyScreenshot(src) {
     }, 10);
 
     proc.on('error', (err) => console.error('wl-copy error:', err));
+
+    console.log('复制成功:', src);
 }
 
 module.exports = { getScreenshotFiles, generateThumbnail, copyScreenshot };
