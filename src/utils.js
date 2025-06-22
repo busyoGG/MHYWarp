@@ -879,5 +879,44 @@ function getAllUids() {
     return result;
 }
 
+const bgCacheDir = path.resolve(os.homedir(), '.config/mhy_warp/bgCache')
+if (!fs.existsSync(bgCacheDir)) {
+    // console.log("filePath", filePath)
+    fs.mkdirSync(bgCacheDir, { recursive: true });
+}
 
-module.exports = { fetchData, getCurrentData, openFolderSelector, exportData, importData, getAllUids, changeCurrent }
+async function setBg(clear) {
+    let targetPath;
+
+    console.log("是否清除", clear)
+    if (clear) {
+        targetPath = "";
+    } else {
+        let url = (await dialog.showOpenDialog({
+            // properties: ['openDirectory'],
+            defaultPath: app.getPath('pictures'),
+            filters: [
+                { name: '图片文件', extensions: ['jpg', 'png', 'jpeg', 'bmp'] },
+            ]
+        })).filePaths[0];
+
+        const fileName = path.basename(url);                // 提取文件名
+        targetPath = path.join(bgCacheDir, fileName);
+
+        await fs.copyFile(url, targetPath)
+    }
+
+    config.bg = targetPath;
+    saveConfig();
+
+    // console.log('设置背景成功:', targetPath);
+
+    return targetPath;
+}
+
+async function setBlur(blur) {
+    config.blur = blur;
+    saveConfig();
+}
+
+module.exports = { fetchData, getCurrentData, openFolderSelector, exportData, importData, getAllUids, changeCurrent, setBg, setBlur }

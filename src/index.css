@@ -15,26 +15,93 @@ body {
 .normal-box {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100vh;
     width: 100%;
-    padding: 5px;
+    padding: 10px;
     box-sizing: border-box;
+
+    background-image: var(--bgImg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    --bgImg: ;
+    --bgBlur: 10;
+}
+
+.bottom-box-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20px;
+}
+
+.bottom-box-bg:hover .bottom-box {
+    transform: translateY(-30%);
+    width: 90%;
+    color: black;
+    box-shadow: #3e3e3e94 0px 0px 15px 1px;
+}
+
+.bottom-box {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.75);
+    border-radius: 9999px;
+    outline: 1px solid #ccc;
+    backdrop-filter: blur(calc(var(--bgBlur) * 1px));
+    padding-left: 10px;
+    padding-right: 10px;
+
+
+    left: 50%;
+    translate: -50% 0;
+    width: 80%;
+    min-height: 40px;
+
+    color: transparent;
+
+    bottom: 0;
+    /* 保持底部对齐 */
+    transform: translateY(80%);
+    /* 向上移动自身高度 */
+
+    transition: transform 0.3s, width 0.3s ,box-shadow 0.3s;
+}
+
+
+.gacha-box {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    /* overflow: hidden; */
+    margin-top: 8px;
+    margin-bottom: 5px;
+
+    outline: 1px solid rgb(182, 203, 205);
+    box-shadow: #5e5e5e77 0px 0px 8px 0px;
 }
 
 #scroll-container {
     flex: 1 1 auto;
     /* background: rgb(243, 254, 255); */
-    margin-bottom: 5px;
+    /* margin-bottom: 5px; */
     overflow-y: auto;
     /* border: 1px solid #ccc; */
     border-radius: 0px 0px 10px 10px;
     position: relative;
     font-family: sans-serif;
 
-    border-top: 1px solid rgb(214, 232, 234);
+    border-top: 1px solid rgb(182, 203, 205);
+    /* border-top: 1px solid rgb(214, 232, 234);
     border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #ccc; */
 }
 
 #scroll-container::-webkit-scrollbar {
@@ -77,19 +144,21 @@ body {
 #filter-buttons {
     position: sticky;
     top: 0;
-    background: rgb(233, 245, 246);
+    background: rgba(203, 239, 242, 0.75);
+    backdrop-filter: blur(calc(var(--bgBlur) * 1px));
     /* z-index: 10; */
     padding: 8px;
 
     display: flex;
     /* border: 1px solid #ccc; */
     border-radius: 10px 10px 0px 0px;
-    margin-top: 8px;
+    /* margin-top: 8px; */
     /* margin-bottom: 8px; */
 
-    border-left: 1px solid #ccc;
+    /* border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #ccc; */
+    /* color:rgb(134, 161, 164) */
 }
 
 #filter-buttons button {
@@ -101,6 +170,11 @@ body {
     box-shadow: rgba(141, 152, 154, 0.644) 0px 0px 4px 1px;
     box-sizing: border-box !important;
     cursor: pointer;
+}
+
+.scroll-container {
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(calc(var(--bgBlur) * 1px));
 }
 
 .active {
@@ -144,7 +218,10 @@ body {
     border-radius: 10px;
     /* margin: 2px; */
     padding: 10px;
-    background-color: rgb(249, 243, 238);
+    background-color: rgba(247, 236, 226, 0.75);
+
+    backdrop-filter: blur(calc(var(--bgBlur) * 1px));
+    box-shadow: #5e5e5e77 0px 0px 8px 0px;
 }
 
 .chart-container {
@@ -187,7 +264,7 @@ canvas {
     border-radius: 6px;
     padding: 5px 8px;
     position: absolute;
-    z-index: 1;
+    z-index: 10;
     bottom: -30px;
     /* 提示框在按钮上方 */
     left: 50%;
@@ -213,15 +290,21 @@ canvas {
 }
 
 .info {
-    background-color: rgb(255, 237, 209);
-    height: 40px;
+    flex: 1;
+    position: relative;
+    background-color: rgba(255, 237, 209, 0.75);
+    height: 36px;
     display: flex;
     justify-content: center;
     align-items: center;
     /* margin-top: 10px; */
-    margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 10px;
+    isolation: isolate;
+    z-index: 1;
+
+    backdrop-filter: blur(calc(var(--bgBlur) * 1px));
+    box-shadow: #5e5e5e77 0px 0px 8px 0px;
 }
 
 .info div {
@@ -230,6 +313,7 @@ canvas {
     height: 100%;
     justify-content: center;
     align-items: center;
+    z-index: 0;
 }
 
 .game-change {
@@ -423,7 +507,7 @@ canvas {
     box-shadow: rgba(121, 140, 143, 0.428) 0px 0px 4px 0px;
     box-sizing: border-box !important;
     cursor: pointer;
-    height: auto;
+    height: 25px;
     /* top:0px; */
     /* bottom: 10px; */
     width: 46px;
@@ -438,13 +522,16 @@ canvas {
     display: block;
     /* left:0px; */
     margin-right: 10px;
+    margin-left: 10px;
+    ;
     /* margin: auto; */
     /* padding: 4px; */
-    border-radius: 15px;
+    border-radius: 18px;
     border: 1px solid #cab091;
-    background-color: #f7d7be;
-    height: 30px !important;
-    width: 30px !important;
+    background-color: rgba(255, 237, 209, 0.75);
+    backdrop-filter: blur(calc(var(--bgBlur) * 1px));
+    height: 36px !important;
+    width: 36px !important;
     box-sizing: border-box;
     cursor: pointer;
     overflow: hidden;
@@ -457,12 +544,14 @@ canvas {
 }
 
 .screenshot-btn:hover {
-    width: 70px !important;
+    width: 76px !important;
 }
 
 .screenshot-text {
     position: absolute;
+    top: 6px;
     left: 27px;
+    font-size: 18px;
     /* margin-left: 5px; */
     /* display: none; */
     opacity: 0;

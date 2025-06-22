@@ -30,6 +30,8 @@ let lastBtn;
 let nextBtn;
 let endBtn;
 
+let switcherParent;
+
 const screenshotInit = async () => {
     console.log("Screenshot init");
 
@@ -48,6 +50,8 @@ const screenshotInit = async () => {
     initPages();
     initViewer();
 
+
+    switcherParent = screenshotBtn.parentElement;
     screenshotBtn.addEventListener("click", async () => {
 
         screenshotBoxOpen = !screenshotBoxOpen;
@@ -69,6 +73,7 @@ const screenshotInit = async () => {
 };
 
 function showScreenshot(open) {
+
     const rect = screenshotBtn.getBoundingClientRect();
 
     const x = rect.left + rect.width * 0.7 + window.scrollX;

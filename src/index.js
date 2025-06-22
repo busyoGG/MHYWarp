@@ -219,7 +219,7 @@ const init = async () => {
                                 ${wai}
                                 <span style="margin-left: auto;">${items[i].time}</span>
                             </div>
-                            <div class="progress-container">
+                            <div class="progress-container" style="outline:1px solid rgb(134, 161, 164)">
                                 <div class="progress-bar" id="progressBar" style="width: ${items[i].count * 100 / 90}%;background-color: ${color};"></div>
                             </div>
                         </div>
@@ -417,6 +417,42 @@ const init = async () => {
         event.stopPropagation(); // 阻止事件继续冒泡到父元素
     });
 
+    let bgBox = document.querySelector(".normal-box");
+    if (config.bg && config.bg != "") {
+        // bgBox.computedStyleMap().get("background-image").value = `url(${config.bg})`;
+        bgBox.style.backgroundImage = `url(${config.bg})`;
+    }
+
+    let bgChangeBtn = document.getElementById("bg-change-btn");
+    bgChangeBtn.addEventListener('mousedown', async (e) => {
+        
+        if (e.button == 0) {
+            let url = await window.utils.setBg();
+            bgBox.style.backgroundImage = `url(${url})`;
+        } else if (e.button == 2) {
+            let url = await window.utils.setBg(true);
+            bgBox.style.backgroundImage = `url(${url})`;
+        }
+    });
+
+    let blur = parseInt(getComputedStyle(bgBox).getPropertyValue("--bgBlur"));
+    if (config.blur == -1) {
+        window.utils.setBlur(blur);
+    } else {
+        blur = config.blur;
+        bgBox.style.setProperty("--bgBlur", blur)
+    }
+    // console.log(blur)
+    bgChangeBtn.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        let offset = e.deltaY > 0 ? 1 : -1;
+        blur += offset;
+        blur = Math.max(0, Math.min(blur, 20));
+        bgBox.style.setProperty("--bgBlur", blur)
+
+        window.utils.setBlur(blur);
+    });
+
     document.getElementById("export-btn").addEventListener('click', async () => {
         await window.utils.exportData();
         console.log("导出成功")
@@ -514,7 +550,7 @@ async function initInfo() {
     let config = await window.utils.getConfig();
 
     if (config.userPath[config.game]) {
-        selectFolder.textContent = `当前游戏文件夹: ${config.userPath[config.game]}`;
+        selectFolder.textContent = `游戏路径: ${config.userPath[config.game]}`;
     }
 
     if (config.current) {

@@ -9,7 +9,9 @@ const config = {
     current: 0,
     fetchFullHistory: false,
     userPath: {},
-    game: "HSR"
+    game: "HSR",
+    bg: "",
+    blur: -1
 }
 
 const uigfDicBase = "https://api.uigf.org/dict/"

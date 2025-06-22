@@ -30,4 +30,6 @@ contextBridge.exposeInMainWorld('utils', {
     getScreenshotFiles: () => ipcRenderer.invoke('getScreenshotFiles'),
     generateThumbnail: (imagePath, width) => ipcRenderer.invoke('generateThumbnail', imagePath, width),
     copyScreenshot: (src) => ipcRenderer.invoke('copyScreenshot', src),
+    setBg: (clear) => ipcRenderer.invoke('setBg', clear),
+    setBlur: (blur) => ipcRenderer.invoke('setBlur', blur),
 })

@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
 const path = require('path');
-const { fetchData, getCurrentData, openFolderSelector, exportData, importData, getAllUids } = require('./utils.js');
+const { fetchData, getCurrentData, openFolderSelector, exportData, importData, getAllUids, setBg, setBlur } = require('./utils.js');
 const { loadIconJson, downloadImage } = require('./getIcon.js');
 const { getGachaType } = require('./getGacha.js');
 const { setGame, getConfig, changeCurrent, iconJsonData } = require('./config.js');
@@ -113,3 +113,11 @@ ipcMain.handle("generateThumbnail", async (evt, imagePath, width) => {
 ipcMain.handle("copyScreenshot", async (evt, src) => {
     copyScreenshot(src);
 });
+
+ipcMain.handle("setBg", async (evt,clear) => {
+    return await setBg(clear);
+})
+
+ipcMain.handle("setBlur", async (evt, blur) => { 
+    setBlur(blur);
+})
