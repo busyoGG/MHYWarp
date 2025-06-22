@@ -385,7 +385,7 @@ function initViewer() {
 
     imgMenu.addEventListener("click", (e) => {
         if (e.target.id === "img-menu-item-copy") {
-            window.utils.copyScreenshot(imgViewerImg.src);
+            window.utils.copyScreenshot(imgViewerImg.dataset.src);
             imgMenu.classList.add("hide");
         }
     });
@@ -395,9 +395,35 @@ function initViewer() {
     });
 }
 
-function showImg(src) {
+let imgClones = {};
+const cacheOrder = []; // 记录缓存顺序
+const maxCacheSize = 25;
+
+async function showImg(src) {
     imgViewerBoxBg.classList.remove("hide");
-    imgViewerImg.src = src;
+    imgViewerImg.dataset.src = src;
+
+    let img = imgClones[src];
+    // console.log("showImg", img)
+    if (!img) {
+        let clone = imgViewerImg.cloneNode(true);
+        clone.src = src;
+        imgClones[src] = clone;
+        img = clone;
+
+        cacheOrder.push(src);
+    } else {
+        // 访问过，把它排到缓存尾部
+        const index = cacheOrder.indexOf(src);
+        if (index > -1) {
+            cacheOrder.splice(index, 1);
+            cacheOrder.push(src);
+        }
+    }
+
+    // imgViewerImg.src = url;
+    imgViewerImg.parentNode.replaceChild(img, imgViewerImg);
+    imgViewerImg = img;
 
     scale = 1;
     offsetX = 0;
@@ -405,6 +431,15 @@ function showImg(src) {
     dragStartX = 0;
     dragStartY = 0;
     imgViewerImg.style.transform = `translate(0px, 0px) scale(1)`;
+
+    // 超出缓存大小，清理最早缓存
+    if (cacheOrder.length > maxCacheSize) {
+        const oldestSrc = cacheOrder.shift();
+        const oldestImg = imgClones[oldestSrc];
+        if (oldestImg.parentNode) oldestImg.parentNode.removeChild(oldestImg);
+        delete imgClones[oldestSrc];
+        console.log("清理缓存", oldestSrc)
+    }
 }
 
 window.screenshotInit = screenshotInit;
