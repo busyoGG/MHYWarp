@@ -69,7 +69,7 @@ body {
     transform: translateY(80%);
     /* 向上移动自身高度 */
 
-    transition: transform 0.3s, width 0.3s ,box-shadow 0.3s;
+    transition: transform 0.3s, width 0.3s, box-shadow 0.3s;
 }
 
 
@@ -114,6 +114,8 @@ body {
     border-radius: 10px;
     border: 4px solid transparent;
     background-clip: content-box;
+
+    min-height: 32px;
 }
 
 #scroll-container::-webkit-scrollbar-thumb:hover {

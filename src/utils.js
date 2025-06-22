@@ -760,6 +760,7 @@ async function importData() {
     });
 
     let filePath;
+    // console.log(result)
     if (!result.canceled && result.filePaths.length > 0) {
         filePath = result.filePaths[0];
     } else {
@@ -769,7 +770,9 @@ async function importData() {
     try {
         let data = await fs.readJSON(filePath);
 
-        if (!data[games[config.game]]) return "wrong file";
+        // console.log(data['info']?.uigf_version)
+        let isV3 = data['info']?.uigf_version;
+        if (!data[games[config.game]] && !isV3) return "wrong file";
 
         await readData();
 
@@ -778,21 +781,27 @@ async function importData() {
 
         const gachaType = await getGachaType()
 
+        console.log("gachaType", gachaType)
+
         for (const type of gachaType) {
             typeMap.set(type.key, type.name)
         }
 
         // console.log(rankLevels)
+        console.log("check keys");
+        // if (data.keys()) {
 
-        for (let uidData of data[games[config.game]]) {
-            // console.log(item);
-            //目前仅支持东八区
-            let timeOffset = 8 - uidData.timezone;
+        // }
 
-            let localData = dataMap.get(uidData.uid);
+        if (isV3) {
+
+            console.log("v3", data.info)
+            let timeOffset = 8 - data.info.region_time_zone;
+            let localData = dataMap.get(data.info.uid);
 
             let importDatas = new Map();
-            for (let item of uidData.list) {
+
+            for (let item of data.list) {
                 let key = item.gacha_type;
                 if (!importDatas.has(key)) {
                     importDatas.set(key, []);
@@ -825,28 +834,84 @@ async function importData() {
             }
 
             let mergedResult = mergeData(localData, {
-                uid: uidData.uid,
+                uid: data.info.uid,
                 result: importDatas
             });
 
-            const data = { result, typeMap, time: Date.now(), uid: uidData.uid, lang: uidData.lang, region: "cn_gf01", region_time_zone: uidData.timezone }
-            data.result = mergedResult
+            const newData = { result, typeMap, time: Date.now(), uid: data.info.uid, lang: data.info.lang, region: "cn_gf01", region_time_zone: data.info.region_time_zone }
+            newData.result = mergedResult
             if (localData) {
-                data.region = localData.region;
-                // data.region_time_zone = localData.region_time_zone;
-                // data.lang = localData.lang;
+                newData.region = localData.region;
             }
-            dataMap.set(uidData.uid, data)
+            dataMap.set(data.info.uid, newData)
 
-            await changeCurrent(uidData.uid)
-            await saveData(data)
-            // console.log(localData.result.get("301").length, importDatas.get("301").length, res.get("301").length);
-            // console.log(importDatas);
+            await changeCurrent(data.info.uid)
+            await saveData(newData)
+
+        } else {
+            for (let uidData of data[games[config.game]]) {
+                // console.log(item);
+                // console.log(uidData)
+                //目前仅支持东八区
+                let timeOffset = 8 - uidData.timezone;
+
+                let localData = dataMap.get(uidData.uid);
+
+                let importDatas = new Map();
+                for (let item of uidData.list) {
+                    let key = item.gacha_type;
+                    if (!importDatas.has(key)) {
+                        importDatas.set(key, []);
+                    }
+
+                    if (!item.name) {
+                        if (!dic) {
+                            dic = await loadDicJson();
+                        }
+                        item.name = reverseDic[item.item_id];
+                    }
+
+                    if (!item.rank_type) {
+                        let isZZZ = config.game === "ZZZ";
+                        item.rank_type = history["rank"][item.name] || (isZZZ ? 2 : 3);
+
+                        // console.log("星级", item.name, rankLevels[item.name]);
+                    }
+
+                    if (!item.item_type) {
+                        item.item_type = history["itemType"][item.name];
+                    }
+
+                    item.time = new Date(new Date(item.time).getTime() + timeOffset * 3600 * 1000).toLocaleString().replaceAll("/", "-");
+
+                    let importItem = item;
+                    delete importItem.uigf_gacha_type;
+                    // console.log("importItem", importItem)
+                    importDatas.get(key).push(importItem);
+                }
+
+                let mergedResult = mergeData(localData, {
+                    uid: uidData.uid,
+                    result: importDatas
+                });
+
+                const newData = { result, typeMap, time: Date.now(), uid: uidData.uid, lang: uidData.lang, region: "cn_gf01", region_time_zone: uidData.timezone }
+                newData.result = mergedResult
+                if (localData) {
+                    newData.region = localData.region;
+                    // data.region_time_zone = localData.region_time_zone;
+                    // data.lang = localData.lang;
+                }
+                dataMap.set(uidData.uid, newData)
+
+                await changeCurrent(uidData.uid)
+                await saveData(newData)
+            }
         }
 
         return true;
     } catch (e) {
-        console.log(e)
+        console.log("import failed", e)
         return "wrong file";
     }
 }
