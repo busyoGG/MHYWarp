@@ -795,14 +795,14 @@ async function importData() {
 
         if (isV3) {
 
-            console.log("v3", data.info)
+            // console.log("v3", data.info)
             let timeOffset = 8 - data.info.region_time_zone;
             let localData = dataMap.get(data.info.uid);
 
             let importDatas = new Map();
 
             for (let item of data.list) {
-                let key = item.gacha_type;
+                let key = item.uigf_gacha_type;
                 if (!importDatas.has(key)) {
                     importDatas.set(key, []);
                 }
@@ -828,6 +828,8 @@ async function importData() {
                 item.time = new Date(new Date(item.time).getTime() + timeOffset * 3600 * 1000).toLocaleString().replaceAll("/", "-");
 
                 let importItem = item;
+                importItem.gacha_type = item.uigf_gacha_type;
+
                 delete importItem.uigf_gacha_type;
                 // console.log("importItem", importItem)
                 importDatas.get(key).push(importItem);
