@@ -24,10 +24,31 @@ yay -S mhy-warp-bin
 
 ## 使用说明
 
+### 抽卡记录
+
 1. 点击文件夹选择按钮<img style="width: 20px;height:20px;" src="./readme/screenshot3.png">，选择存在 `StarRail_Data` 文件夹的游戏目录，假设 `/home/yourname/Star Rail/Game` 存在该文件夹，那你就需要选择 `/home/yourname/Star Rail/Game` 目录。
 2. 打开游戏跃迁详情，让游戏把跃迁记录缓存到本地。
 3. 点击同步按钮<img style="width: 20px;height:20px;" src="./readme/screenshot4.png">，等待同步完成。
 4. 点击游戏图标选择查询的游戏 <img style="width: 20px;height:20px;" src="./readme/screenshot5.png">。
+
+### 截图浏览
+
+1. 点击右上角截图按钮，进入截图浏览界面。
+2. 点击任意截图查看大图。
+3. 在大图界面鼠标滚轮控制图片缩放，左键拖拽控制图片移动。
+4. 在大图界面右键可以复制图片（复制的是源文件）。
+
+### 导入导出
+
+1. 鼠标移动到下方弹出工具栏。
+2. 点击导入、导出按钮，进行 UIGF 文件导入导出。
+
+### 背景界面
+
+1. 鼠标移动到下方弹出工具栏。
+2. 左键点击壁纸按钮，选择壁纸并应用。
+3. 右键点击壁纸按钮，清除壁纸。
+4. 在壁纸按钮上滚动鼠标滚轮可以控制模糊效果的强度。
 
 ## 配置说明
 
@@ -36,9 +57,17 @@ yay -S mhy-warp-bin
 - `userData/config.json`：配置文件。
 - `userData/{game}-gacha-list-{your_uid}.json` 跃迁记录文件。
 - `image_cache_{game}/` 图片缓存文件夹。
+- `bgCache` 壁纸缓存文件。
+- `thumbnails` 缩略图缓存文件夹。
 
 ## 截图
 
 > 由于跃迁记录存在时效性，因此最早的五星跃迁记录所显示的抽数可能与实际不符，从而导致平均抽数计算值偏低。
 
-![](./readme/screenshot7.png)
+![](./readme/main.png)
+
+![](./readme/screenshot_view.png)
+
+![](./readme/viewer.png)
+
+![](./readme/blur.png)
