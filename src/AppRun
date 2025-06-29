@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "[INFO] Running AppRun from custom script" >&2
+# 自动启用 Wayland 支持（仅在 Wayland 会话下）
+if [ "$XDG_SESSION_TYPE" = "wayland" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+    export ELECTRON_ENABLE_OZONE=1
+    export ELECTRON_OZONE_PLATFORM_HINT=auto
+    export OZONE_PLATFORM=wayland
+fi
+
+# 当前 AppImage 运行路径
+HERE="$(dirname "$(readlink -f "$0")")"
+
+# Electron 应用的默认主程序（对应 productName）
+APP_EXECUTABLE="mhywarp"
+
+# 启动主程序
+exec "$HERE/$APP_EXECUTABLE" "$@"

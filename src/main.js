@@ -6,6 +6,9 @@ const { getGachaType } = require('./getGacha.js');
 const { setGame, getConfig, changeCurrent, iconJsonData } = require('./config.js');
 const { getScreenshotFiles, generateThumbnail, copyScreenshot, moveToTrash } = require('./screenshotUtils.js');
 
+
+
+
 // 开发模式启用 electron-reload
 if (process.env.NODE_ENV === 'development') {
     try {
@@ -114,11 +117,11 @@ ipcMain.handle("copyScreenshot", async (evt, src) => {
     copyScreenshot(src);
 });
 
-ipcMain.handle("setBg", async (evt,clear) => {
+ipcMain.handle("setBg", async (evt, clear) => {
     return await setBg(clear);
 })
 
-ipcMain.handle("setBlur", async (evt, blur) => { 
+ipcMain.handle("setBlur", async (evt, blur) => {
     setBlur(blur);
 })
 

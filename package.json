@@ -1,6 +1,6 @@
 {
   "name": "mhywarp",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "",
   "author": {
     "name": "busyo",
@@ -10,7 +10,7 @@
   "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=development electron .",
+    "start": "NODE_ENV=development ELECTRON_OZONE_PLATFORM_HINT=auto electron .",
     "build": "electron-builder",
     "build-linux": "electron-builder --linux",
     "build-win": "electron-builder --win"
@@ -39,6 +39,12 @@
     ],
     "appId": "org.busyo.mhywarp",
     "productName": "MHYWarp",
+    "extraResources": [
+      {
+        "from": "./src/AppRun",
+        "to": "AppRun"
+      }
+    ],
     "linux": {
       "target": [
         "AppImage"
@@ -50,6 +56,7 @@
         "portable"
       ],
       "icon": "res/icon.png"
-    }
+    },
+    "afterPack": "./src/replace-apprun.js"
   }
 }
