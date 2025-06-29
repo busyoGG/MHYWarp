@@ -45,7 +45,7 @@ const screenshotInit = async () => {
     viwerCloseBtn = document.getElementById("img-viewer-close");
     imgMenu = document.getElementById("img-menu");
 
-    screenshotFiles = await window.utils.getScreenshotFiles();
+    // screenshotFiles = await window.utils.getScreenshotFiles();
 
     initPages();
     initViewer();
@@ -55,6 +55,11 @@ const screenshotInit = async () => {
     screenshotBtn.addEventListener("click", async () => {
 
         screenshotBoxOpen = !screenshotBoxOpen;
+
+        if (screenshotBoxOpen) {
+            screenshotFiles = await window.utils.getScreenshotFiles();
+        }
+
         showScreenshot(screenshotBoxOpen);
         generateScreenshot();
 
@@ -73,6 +78,7 @@ const screenshotInit = async () => {
 };
 
 function showScreenshot(open) {
+
 
     const rect = screenshotBtn.getBoundingClientRect();
 
@@ -161,16 +167,53 @@ function generateScreenshot() {
     } else if (renderedItems.length < onePageTotal) {
         for (let i = renderedItems.length; i < onePageTotal; i++) {
 
+            let div = document.createElement("div");
+            div.style.position = "relative";
+            div.classList.add("screenshot-img-box");
+
             const screenshot = new Image();
             screenshot.loading = "lazy";
             // screenshot.style.cssText = imgCss;
             screenshot.classList.add("screenshot-img");
-            screenshotContent.appendChild(screenshot);
 
-            renderedItems.push(screenshot);
+            renderedItems.push(div);
+
+            div.appendChild(screenshot);
+            screenshotContent.appendChild(div);
 
             screenshot.addEventListener("click", () => {
                 showImg(screenshot.dataset.src);
+            });
+
+            const btnCopy = document.createElement("div");
+            // btnCopy.textContent = "Copy";
+            btnCopy.innerHTML = `<i class="fas fa-copy" ></i>`;
+            btnCopy.classList.add("screenshot-copy");
+            div.appendChild(btnCopy);
+
+            btnCopy.addEventListener("click", (e) => {
+                window.utils.copyScreenshot(screenshot.dataset.src);
+            });
+
+            const btnTrash = document.createElement("div");
+            // btnTrash.textContent = "Trash";
+            btnTrash.innerHTML = `<i class="fas fa-trash"></i>`;
+            btnTrash.classList.add("screenshot-copy");
+            btnTrash.style.right = "30px";
+            btnTrash.style.color = "#f76363";
+            div.appendChild(btnTrash);
+
+            btnTrash.addEventListener("click", async (e) => {
+                await window.utils.moveToTrash(screenshot.dataset.src);
+                screenshotFiles = await window.utils.getScreenshotFiles();
+
+                showScreenshot(screenshotBoxOpen);
+                generateScreenshot();
+
+                updateScreenshot();
+                updatePages();
+                // div.remove();
+                // renderedItems.splice(renderedItems.indexOf(div), 1);
             });
         }
     }
@@ -198,17 +241,19 @@ async function renderScreenshot(data) {
 
     for (let i = 0; i < data.length; i++) {
         const screenshot = renderedItems[i];
+        const img = screenshot.children[0];
         if (!cachedThumbnail[data[i]]) {
-            screenshot.src = "../res/loading.gif?v=" + i;
+            img.src = "../res/loading.gif?v=" + i;
         }
         screenshot.classList.remove("hide");
     }
 
     for (let i = 0; i < data.length; i++) {
         const screenshot = renderedItems[i];
+        const img = screenshot.children[0];
         cachedThumbnail[data[i]] = await window.utils.generateThumbnail(data[i], 400);
-        screenshot.src = cachedThumbnail[data[i]];
-        screenshot.dataset.src = data[i];
+        img.src = cachedThumbnail[data[i]];
+        img.dataset.src = data[i];
 
         screenshot.classList.remove("hide");
     }

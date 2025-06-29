@@ -4,7 +4,7 @@ const { fetchData, getCurrentData, openFolderSelector, exportData, importData, g
 const { loadIconJson, downloadImage } = require('./getIcon.js');
 const { getGachaType } = require('./getGacha.js');
 const { setGame, getConfig, changeCurrent, iconJsonData } = require('./config.js');
-const { getScreenshotFiles, generateThumbnail, copyScreenshot } = require('./screenshotUtils.js');
+const { getScreenshotFiles, generateThumbnail, copyScreenshot, moveToTrash } = require('./screenshotUtils.js');
 
 // 开发模式启用 electron-reload
 if (process.env.NODE_ENV === 'development') {
@@ -120,4 +120,8 @@ ipcMain.handle("setBg", async (evt,clear) => {
 
 ipcMain.handle("setBlur", async (evt, blur) => { 
     setBlur(blur);
+})
+
+ipcMain.handle("moveToTrash", async (evt, src) => {
+    moveToTrash(src);
 })

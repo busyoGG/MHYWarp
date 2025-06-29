@@ -5,6 +5,7 @@ const { config } = require('./config');
 const sharp = require('sharp');
 const os = require('os');
 const { spawn } = require('child_process');
+const { shell } = require('electron');
 
 
 const thumbnailsDir = path.resolve(os.homedir(), '.config/mhy_warp/thumbnails')
@@ -63,17 +64,21 @@ async function generateThumbnail(imagePath, width = 400) {
     }
 }
 
-function fileUrlToPath(fileUrl) {
-    if (fileUrl.startsWith('file://')) {
-        // 去除 file:// 前缀，Linux/macOS 下直接取子串即可
-        // Windows 下可能需要更复杂处理
-        return decodeURIComponent(fileUrl.replace('file://', ''));
+async function moveToTrash(filePath) {
+    try {
+        const result = await shell.trashItem(filePath);
+        console.log('文件已成功移动到回收站:', result);
+    } catch (error) {
+        console.error('移动到回收站失败:', error);
     }
-    return fileUrl;
 }
 
 let lastCopyTime = 0;
 function copyScreenshot(src) {
+
+    if (!src.startsWith('file://')) {
+        src = 'file://' + src;
+    }
 
     const now = Date.now();
     if (now - lastCopyTime < 300) return; // 防止快速重复点击
@@ -91,4 +96,4 @@ function copyScreenshot(src) {
     console.log('复制成功:', src);
 }
 
-module.exports = { getScreenshotFiles, generateThumbnail, copyScreenshot };
+module.exports = { getScreenshotFiles, generateThumbnail, copyScreenshot, moveToTrash };

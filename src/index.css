@@ -651,19 +651,48 @@ canvas {
     font-size: 0;
 }
 
-.screenshot-img {
+.screenshot-img-box {
     border-radius: 10px;
     outline: 1px solid #ccc;
     cursor: pointer;
     object-fit: contain;
     transform: scale(1);
+    overflow: hidden;
+
 
     transition: transform 0.5s;
 }
 
-.screenshot-img:hover {
+.screenshot-img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+.screenshot-img-box:hover {
     box-shadow: rgba(249, 236, 218, 0.644) 0px 0px 20px 2px;
     transform: scale(1.1);
+}
+
+.screenshot-copy {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    /* height:20px;
+    width: 20px; */
+    /* display: flex; */
+    padding: 2px;
+    opacity: 0;
+    font-size: 20px;
+}
+
+.screenshot-copy:hover {
+    background-color: #3a3a3aaa;
+    border-radius: 4px;
+}
+
+.screenshot-img-box:hover .screenshot-copy {
+    opacity: 1;
 }
 
 .pages-box {
