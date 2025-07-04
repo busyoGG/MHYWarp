@@ -203,7 +203,7 @@ const init = async () => {
                         }
                     }
 
-                    if (items[i].name != "未出货" && (!renderType.includes("常驻") || renderType.includes("新手")) && waiMark) {
+                    if (items[i].name != "未出货" && (!renderType.includes("常驻") && !renderType.includes("新手") && !renderType.includes("集录祈愿")) && waiMark) {
                         // console.log(items[i].name, "歪了")
                         wai = "<span class='wai'>歪</span>"
                     }
@@ -425,7 +425,7 @@ const init = async () => {
 
     let bgChangeBtn = document.getElementById("bg-change-btn");
     bgChangeBtn.addEventListener('mousedown', async (e) => {
-        
+
         if (e.button == 0) {
             let url = await window.utils.setBg();
             bgBox.style.backgroundImage = `url(${url})`;

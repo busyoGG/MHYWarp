@@ -3,7 +3,7 @@ const path = require('path');
 const { fetchData, getCurrentData, openFolderSelector, exportData, importData, getAllUids, setBg, setBlur } = require('./utils.js');
 const { loadIconJson, downloadImage } = require('./getIcon.js');
 const { getGachaType } = require('./getGacha.js');
-const { setGame, getConfig, changeCurrent, iconJsonData } = require('./config.js');
+const { setGame, getConfig, changeCurrent } = require('./config.js');
 const { getScreenshotFiles, generateThumbnail, copyScreenshot, moveToTrash } = require('./screenshotUtils.js');
 
 

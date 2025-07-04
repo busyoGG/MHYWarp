@@ -33,16 +33,16 @@ let normalPickUp = {
 
 let histories = {
     "Genshin": [
-        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/gi/character.json",
-        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/gi/weapon.json"
+        "https://raw.githubusercontent.com/busyoGG/FetchData/refs/heads/main/data/gacha/gi/character.json",
+        "https://raw.githubusercontent.com/busyoGG/FetchData/refs/heads/main/data/gacha/gi/weapon.json"
     ],
     "HSR": [
-        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/hsr/character.json",
-        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/hsr/weapon.json"
+        "https://raw.githubusercontent.com/busyoGG/FetchData/refs/heads/main/data/gacha/hsr/character.json",
+        "https://raw.githubusercontent.com/busyoGG/FetchData/refs/heads/main/data/gacha/hsr/weapon.json"
     ],
     "ZZZ": [
-        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/zzz/character.json",
-        "https://raw.githubusercontent.com/KeyPJ/FetchData/refs/heads/main/data/gacha/zzz/weapon.json"
+        "https://raw.githubusercontent.com/busyoGG/FetchData/refs/heads/main/data/gacha/zzz/character.json",
+        "https://raw.githubusercontent.com/busyoGG/FetchData/refs/heads/main/data/gacha/zzz/weapon.json"
     ]
 }
 
