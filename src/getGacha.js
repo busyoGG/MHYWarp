@@ -6,6 +6,8 @@ let apiDomain = 'https://api-takumi.mihoyo.com'
 const hsrTypeMap = new Map([
     ['11', '角色活动跃迁'],
     ['12', '光锥活动跃迁'],
+    ['21', '角色联动跃迁'],
+    ['22', '光锥联动跃迁'],
     ['1', '常驻跃迁'],
     ['2', '新手跃迁']
 ])
@@ -92,7 +94,9 @@ function urlMatch(cacheText) {
 function getQuerystring(url) {
     // const text = i18n.log
     const { searchParams, host } = new URL(fixAuthkey(url))
+    // console.log("querystring", host, searchParams);
     updateApiDomain(host)
+    let gachaType = searchParams.get('gacha_type')
     const authkey = searchParams.get('authkey')
     if (!authkey) {
         sendMsg("no authkey")
@@ -134,10 +138,20 @@ const fixAuthkey = (url) => {
     return url
 }
 
-function getGachaLogUrl() {
+function getGachaLogUrl(type = 0) {
     let url;
     switch (getConfig().game) {
         case 'HSR':
+            switch (type) {
+                case "21":
+                case "22":
+                    url = `${apiDomain}/common/gacha_record/api/getLdGachaLog?`
+                    break;
+                default:
+                    url = `${apiDomain}/common/gacha_record/api/getGachaLog?`
+                    break;
+            }
+            break;
         case 'ZZZ':
             url = `${apiDomain}/common/gacha_record/api/getGachaLog?`
             break;

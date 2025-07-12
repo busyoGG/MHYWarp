@@ -33,13 +33,15 @@ const fetchData = async () => {
     await readData()
 
     sendMsg("获取历史卡池信息");
-    await getHistoryData();
+    let err = await getHistoryData();
 
     sendMsg("获取图标信息");
-    await loadIconJson();
+    err = await loadIconJson();
 
     // sendMsg("获取 UIGF 词典信息");
-    await loadDicJson();
+    err = await loadDicJson();
+
+    if (err == "timeout") return err;
 
     sendMsg("获取抽卡链接");
     let url = await getUrl()
@@ -266,10 +268,15 @@ const loadIconJson = async () => {
     iconJsonData.length = 0;
     if (typeof url === "string") {
         const res = await request(url)
+
+        if (res == "timeout") return res;
+
         iconJsonData.push(...res.data.list[0].children)
     } else {
         for (let i = 0; i < url.length; i++) {
             const res = await request(url[i])
+
+            if (!res) return res;
             // console.log(res.data.list[0])
             iconJsonData.push(...res.data.list)
         }
@@ -286,6 +293,9 @@ const loadDicJson = async () => {
         return "no url";
     }
     const res = await request(url)
+
+    if (res == "timeout") return res;
+
     dic = res;
     reverseDic = {};
     for (let key in dic) {
@@ -296,6 +306,7 @@ const loadDicJson = async () => {
 
 const getGachaLogs = async ({ name, key }, queryString) => {
     // const text = i18n.log
+    // console.log("params",queryString)
     let page = 1
     let list = []
     let res = null
@@ -304,7 +315,7 @@ const getGachaLogs = async ({ name, key }, queryString) => {
     let region = ''
     let region_time_zone = ''
     let endId = '0'
-    const url = `${getGachaLogUrl()}${queryString}`
+    const url = `${getGachaLogUrl(key)}${queryString}`
     let haveItemIdChecked = false;
     let haveItemId;
     do {
@@ -377,7 +388,7 @@ const getGachaLog = async ({ key, page, name, retryCount, url, endId }) => {
         // console.log(key, page, name, url, endId, retryCount)
         let pramGacha = config.game === "ZZZ" ? "real_gacha_type" : "gacha_type"
         let reqUrl = `${url}&${pramGacha}=${key}&page=${page}&size=${20}${endId ? '&end_id=' + endId : ''}`;
-        // console.log(reqUrl)
+        // console.log("抽卡记录请求链接", reqUrl)
         const res = await request(reqUrl)
         // console.log(reqUrl, res);
         if (res?.data?.list) {
@@ -402,10 +413,14 @@ const getUrl = async () => {
 }
 
 const request = async (url) => {
-    const res = await fetch(url, {
-        timeout: 15 * 1000
-    })
-    return await res.json()
+    try {
+        const res = await fetch(url, {
+            timeout: 15 * 1000
+        })
+        return await res.json()
+    } catch {
+        return "timeout";
+    }
 }
 
 const readLog = async () => {
@@ -482,6 +497,7 @@ const tryRequest = async (url, retry = false) => {
     const queryString = await getQuerystring(url)
     if (!queryString) return false
     const gachaTypeUrl = `${getGachaLogUrl()}${queryString}&page=1&size=5&gacha_type=1&end_id=0`
+    // console.log("测试链接", gachaTypeUrl);
     try {
         const res = await request(gachaTypeUrl)
         return checkResStatus(res)
@@ -558,6 +574,8 @@ async function getHistoryData() {
 
     for (let url of historyUrls) {
         let historyData = await request(url)
+
+        if (historyData == "timeout") return historyData;
 
         for (let value of historyData) {
             for (let item of value.items) {
