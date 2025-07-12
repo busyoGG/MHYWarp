@@ -605,12 +605,12 @@ async function initData() {
         for (let i = 0; i < value.length; i++) {
             let item = value[i];
             count++;
-            if (key.includes("活动") || key.includes("集愿") || key.includes("独家") || key.includes("音擎")) {
-                specialCount += 1;
+            if (key.includes("新手") || key.includes("常驻")) {
+                normalCount += 1;
             } else if (key.includes("邦布")) {
                 bangbuCount += 1;
             } else {
-                normalCount += 1;
+                specialCount += 1;
             }
             // console.log(item.rank_type)
             if (item.rank_type == (config.game === "ZZZ" ? 4 : 5)) {
