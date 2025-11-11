@@ -1,0 +1,16 @@
+
+> mhywarp@2.0.6 build-win
+> electron-builder --win
+
+  • electron-builder  version=26.0.12 os=6.17.0-rc4-1-cachyos-rc-lto
+  • loaded configuration  file=package.json ("build" field)
+  • description is missed in the package.json  appPackageFile=/home/busyo/Dev/MHYWarp/package.json
+  • executing @electron/rebuild  electronVersion=36.8.1 arch=x64 buildFromSource=false appDir=./
+  • installing native dependencies  arch=x64
+  • preparing       moduleName=sqlite3 arch=x64
+  • finished        moduleName=sqlite3 arch=x64
+  • completed installing native dependencies
+  • packaging       platform=win32 arch=x64 electron=36.8.1 appOutDir=dist/win-unpacked
+(node:12003) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  ⨯ ENOENT: no such file or directory, rename '/home/busyo/Dev/MHYWarp/dist/win-unpacked/electron.exe' -> '/home/busyo/Dev/MHYWarp/dist/win-unpacked/MHYWarp.exe'  failedTask=build stackTrace=Error: ENOENT: no such file or directory, rename '/home/busyo/Dev/MHYWarp/dist/win-unpacked/electron.exe' -> '/home/busyo/Dev/MHYWarp/dist/win-unpacked/MHYWarp.exe'

@@ -95,7 +95,7 @@ const fetchData = async () => {
             let { id, item_id, item_type, name, rank_type, time, gacha_id, gacha_type, count } = item
             if (!item_id || item_id == '') {
                 item_id = dic[name]
-                console.log("no item id", id, name, dic[name])
+                // console.log("no item id", id, name, dic[name])
             }
             return { id, item_id, item_type, name, rank_type, time, gacha_id, gacha_type, count }
         })
@@ -388,7 +388,7 @@ const getGachaLog = async ({ key, page, name, retryCount, url, endId }) => {
         // console.log(key, page, name, url, endId, retryCount)
         let pramGacha = config.game === "ZZZ" ? "real_gacha_type" : "gacha_type"
         let reqUrl = `${url}&${pramGacha}=${key}&page=${page}&size=${20}${endId ? '&end_id=' + endId : ''}`;
-        // console.log("抽卡记录请求链接", reqUrl)
+        console.log("抽卡记录请求链接", reqUrl)
         const res = await request(reqUrl)
         // console.log(reqUrl, res);
         if (res?.data?.list) {
@@ -750,13 +750,26 @@ async function exportData() {
                     gacha_type: key,
                     name: item.name,
                     count: item.count,
-                    time: item.time,
+                    time: new Date(item.time).toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false // 24 小时制
+                    }).replace(/\//g, '-'),
                     id: item.id,
                     item_id: item.item_id,
                     item_type: item.item_type,
                     rank_type: item.rank_type,
                     gacha_id: item.gacha_id,
                 }
+
+                pullItem = Object.fromEntries(
+                    Object.entries(pullItem).map(([k, v]) => [k, String(v)])
+                );
+
                 uidObj.list.push(pullItem)
                 // console.log(pullItem)
             }
