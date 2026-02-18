@@ -22,19 +22,35 @@ async function getScreenshotFiles() {
         let screenshotDir = config.userPath[config.game];
 
         if (config.game === "HSR") {
-            screenshotDir = path.join(screenshotDir, 'ScreenShots');
+            screenshotDir = [path.join(screenshotDir, 'ScreenShots'), path.join(screenshotDir, 'StarRail_Data/ScreenShots')];
         } else {
             screenshotDir = path.join(screenshotDir, 'ScreenShot');
         }
 
-        const files = await fs.readdir(screenshotDir);
+        let files = [];
+
+        if (config.game === "HSR") {
+            for (const dir of screenshotDir) {
+                if (fsSync.existsSync(dir)) {
+                    const dirFiles = await fs.readdir(dir);
+                    files = files.concat(dirFiles.map(file => path.join(dir, file)));
+                }
+            }
+        } else {
+            if (fsSync.existsSync(screenshotDir)) {
+                files = await fs.readdir(screenshotDir);
+                files = files.map(file => path.join(screenshotDir, file));
+            }
+        }
+
+        console.log("找到截图文件:", files);
 
         for (const file of files) {
-            const fullPath = path.join(screenshotDir, file);
-            const stat = await fs.stat(fullPath);
+            // const fullPath = path.join(screenshotDir, file);
+            const stat = await fs.stat(file);
             if (stat.isFile()) {
                 // console.log('文件:', fullPath);
-                res.unshift(fullPath);
+                res.unshift(file);
             }
         }
     } catch (error) {
